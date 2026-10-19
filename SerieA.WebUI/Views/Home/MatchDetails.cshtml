@@ -1,0 +1,264 @@
+﻿@model SerieA.WebUI.Models.MatchDetailViewModel
+
+@{
+    ViewData["Title"] = $"{Model.HomeTeamName} - {Model.AwayTeamName}";
+}
+
+<style>
+    .match-page {
+        max-width: 1100px;
+        margin: 35px auto;
+        padding: 20px;
+        color: #eaf0ff;
+    }
+
+    .match-hero, .detail-panel {
+        background: #101d38;
+        border: 1px solid #263d65;
+        border-radius: 18px;
+        margin-bottom: 22px;
+    }
+
+    .match-hero {
+        padding: 35px 20px;
+        text-align: center;
+    }
+
+    .match-teams {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        gap: 24px;
+    }
+
+    .team-name {
+        font-size: 22px;
+        font-weight: 700;
+    }
+
+    .team-logo {
+        width: 64px;
+        height: 64px;
+        object-fit: contain;
+        display: block;
+        margin: 0 auto 12px;
+    }
+
+    .match-score {
+        font-size: 42px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .match-meta {
+        color: #9fb5dc;
+        margin-top: 12px;
+    }
+
+    .detail-panel h2 {
+        font-size: 19px;
+        padding: 17px 20px;
+        margin: 0;
+        border-bottom: 1px solid #263d65;
+    }
+
+    .event-list {
+        padding: 10px 20px;
+    }
+
+    .event-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 13px 0;
+        border-bottom: 1px solid #223454;
+    }
+
+        .event-row:last-child {
+            border-bottom: 0;
+        }
+
+    .event-minute {
+        color: #72a6ff;
+        font-weight: 700;
+        min-width: 45px;
+    }
+
+    .event-team {
+        color: #9fb5dc;
+        margin-left: auto;
+        text-align: right;
+    }
+
+    .empty-event {
+        padding: 20px;
+        color: #9fb5dc;
+    }
+
+    .back-link {
+        display: inline-block;
+        margin-bottom: 18px;
+        color: #72a6ff;
+        text-decoration: none;
+    }
+
+    @@media (max-width: 600px) {
+        .match-page {
+            padding: 12px;
+        }
+
+        .match-teams {
+            gap: 8px;
+        }
+
+        .team-name {
+            font-size: 15px;
+        }
+
+        .team-logo {
+            width: 42px;
+            height: 42px;
+        }
+
+        .match-score {
+            font-size: 30px;
+        }
+    }
+</style>
+
+<div class="match-page">
+    <a class="back-link" href="/">← Fikstüre dön</a>
+
+    <section class="match-hero">
+        <div class="match-teams">
+            <div>
+                @if (!string.IsNullOrWhiteSpace(Model.HomeTeamLogoUrl))
+                {
+                    <img class="team-logo"
+                         src="@Model.HomeTeamLogoUrl"
+                         alt="@Model.HomeTeamName" />
+                }
+
+                <div class="team-name">@Model.HomeTeamName</div>
+            </div>
+
+            <div>
+                <div class="match-score">
+                    @(Model.HomeScore?.ToString() ?? "-")
+                    :
+                    @(Model.AwayScore?.ToString() ?? "-")
+                </div>
+                <div class="match-meta">
+                    @Model.Status
+                </div>
+            </div>
+
+            <div>
+                @if (!string.IsNullOrWhiteSpace(Model.AwayTeamLogoUrl))
+                {
+                    <img class="team-logo"
+                         src="@Model.AwayTeamLogoUrl"
+                         alt="@Model.AwayTeamName" />
+                }
+
+                <div class="team-name">@Model.AwayTeamName</div>
+            </div>
+        </div>
+
+        <div class="match-meta">
+            @Model.MatchDate.ToString("dd.MM.yyyy HH:mm")
+            @if (!string.IsNullOrWhiteSpace(Model.Stadium))
+            {
+                <span> · @Model.Stadium</span>
+            }
+            <div>@Model.Week. Hafta</div>
+        </div>
+    </section>
+
+    <section class="detail-panel">
+        <h2>⚽ Goller</h2>
+
+        @if (Model.Goals != null && Model.Goals.Any())
+        {
+            <div class="event-list">
+                @foreach (var goal in Model.Goals.OrderBy(g => g.Minute))
+                {
+                    <div class="event-row">
+                        <span class="event-minute">@goal.Minute'</span>
+                        <strong>@goal.PlayerName</strong>
+                        <span class="event-team">
+                            @(goal.TeamId == Model.HomeTeamId
+                                                ? Model.HomeTeamName
+                                                : Model.AwayTeamName)
+                </span>
+            </div>
+                        }
+            </div>
+        }
+        else
+        {
+            <div class="empty-event">Bu maçta henüz gol kaydı yok.</div>
+        }
+    </section>
+
+    <section class="detail-panel">
+        <h2>🟨 Kartlar</h2>
+
+        @if (Model.Cards != null && Model.Cards.Any())
+        {
+            <div class="event-list">
+                @foreach (var card in Model.Cards.OrderBy(c => c.Minute))
+                {
+                    <div class="event-row">
+                        <span class="event-minute">@card.Minute'</span>
+                        <strong>
+                            @(card.CardType.Contains("Kırmızı",
+                                                StringComparison.OrdinalIgnoreCase) ? "🟥" : "🟨")
+                                                                                                  @card.PlayerName
+                                                                                              </strong>
+                                                                                              <span class="event-team">
+                            @(card.TeamId == Model.HomeTeamId
+                                                ? Model.HomeTeamName
+                                                : Model.AwayTeamName)
+                </span>
+            </div>
+                        }
+            </div>
+        }
+        else
+        {
+            <div class="empty-event">Bu maçta henüz kart kaydı yok.</div>
+        }
+    </section>
+
+    <section class="detail-panel">
+        <h2>🔄 Oyuncu değişiklikleri</h2>
+
+        @if (Model.Substitutions != null && Model.Substitutions.Any())
+        {
+            <div class="event-list">
+                @foreach (var sub in Model.Substitutions.OrderBy(s => s.Minute))
+                {
+                    <div class="event-row">
+                        <span class="event-minute">@sub.Minute'</span>
+                        <div>
+                            <div>↑ @sub.PlayerIn</div>
+                            <div>↓ @sub.PlayerOut</div>
+                        </div>
+                        <span class="event-team">
+                            @(sub.TeamId == Model.HomeTeamId
+                                                ? Model.HomeTeamName
+                                                : Model.AwayTeamName)
+                </span>
+            </div>
+                        }
+            </div>
+        }
+        else
+        {
+            <div class="empty-event">
+                Bu maçta henüz oyuncu değişikliği kaydı yok.
+            </div>
+        }
+    </section>
+</div>

@@ -1,0 +1,495 @@
+﻿
+:root {
+    --navy: #0B1B3A;
+    --navy-light: #14294D;
+    --blue: #1E5BD8;
+    --green: #009246;
+    --red: #CE2B37;
+    --page-bg: #F2F5F9;
+    --white: #FFFFFF;
+    --text: #18243A;
+    --muted: #77839A;
+    --border: #E4E9F1;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body.admin-page {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--page-bg);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+}
+
+.admin-sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: 250px;
+    padding: 25px 16px;
+    display: flex;
+    flex-direction: column;
+    background: var(--navy);
+    color: var(--white);
+    z-index: 1000;
+}
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 10px 28px;
+    color: var(--white);
+    text-decoration: none;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 25px;
+    font-weight: 700;
+}
+
+    .sidebar-brand:hover {
+        color: var(--white);
+    }
+
+    .sidebar-brand small {
+        display: block;
+        margin-top: 3px;
+        color: #A8B8D3;
+        font-family: 'Barlow', sans-serif;
+        font-size: 10px;
+        letter-spacing: 1.5px;
+    }
+
+.brand-mark {
+    width: 43px;
+    height: 43px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    background: var(--blue);
+    color: var(--white);
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.sidebar-section-title {
+    padding: 18px 12px 10px;
+    color: #8091B0;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.6px;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 13px 14px;
+    border-radius: 9px;
+    color: #C3CEE0;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 500;
+    transition: background .2s, color .2s;
+}
+
+    .sidebar-link span {
+        width: 22px;
+        text-align: center;
+        font-size: 18px;
+    }
+
+    .sidebar-link:hover,
+    .sidebar-link.is-active {
+        background: var(--blue);
+        color: var(--white);
+    }
+
+.sidebar-footer {
+    margin-top: auto;
+    padding: 18px 12px 0;
+    border-top: 1px solid #293B5B;
+    color: var(--white);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+    .sidebar-footer small {
+        display: block;
+        margin-top: 5px;
+        color: #91A1BC;
+        font-size: 11px;
+        font-weight: 400;
+    }
+
+.admin-main {
+    min-height: 100vh;
+    margin-left: 250px;
+}
+
+.admin-topbar {
+    min-height: 92px;
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+}
+
+.topbar-crumb {
+    margin-bottom: 5px;
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+}
+
+.topbar-title {
+    margin: 0;
+    color: var(--navy);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.admin-status {
+    padding: 9px 13px;
+    border: 1px solid #CDEBDD;
+    border-radius: 30px;
+    background: #F0FAF5;
+    color: #087C43;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.admin-content {
+    padding: 30px 32px;
+}
+
+.page-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin-bottom: 26px;
+}
+
+.page-title {
+    margin: 0 0 7px;
+    color: var(--navy);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 30px;
+    font-weight: 700;
+}
+
+.page-desc {
+    margin: 0;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.card-a {
+    padding: 22px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--white);
+    box-shadow: 0 4px 15px rgb(11 27 58 / 3%);
+}
+
+.btn-a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 11px 17px;
+    border: 0;
+    border-radius: 9px;
+    background: var(--blue);
+    color: var(--white);
+    font-family: 'Barlow', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+    .btn-a:hover {
+        background: #1749B1;
+        color: var(--white);
+    }
+
+.table-a {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+    .table-a th {
+        padding: 13px 15px;
+        background: #F7F9FC;
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .7px;
+        text-align: left;
+        text-transform: uppercase;
+    }
+
+    .table-a td {
+        padding: 15px;
+        border-bottom: 1px solid var(--border);
+        font-size: 14px;
+    }
+
+@media (max-width: 900px) {
+    .admin-sidebar {
+        width: 205px;
+    }
+
+    .admin-main {
+        margin-left: 205px;
+    }
+
+    .admin-topbar {
+        padding: 18px 22px;
+    }
+
+    .admin-content {
+        padding: 22px;
+    }
+}
+
+@media (max-width: 600px) {
+    .admin-sidebar {
+        position: static;
+        width: 100%;
+        min-height: auto;
+    }
+
+    .sidebar-footer {
+        display: none;
+    }
+
+    .admin-main {
+        margin-left: 0;
+    }
+
+    .admin-topbar {
+        min-height: 75px;
+        padding: 15px;
+    }
+
+    .topbar-title {
+        font-size: 24px;
+    }
+
+    .admin-content {
+        padding: 16px;
+    }
+}
+
+
+
+
+/* Takım Silme Modalı */
+.delete-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 18, 35, 0.72);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 9999;
+    animation: deleteOverlayIn 0.2s ease;
+}
+
+.delete-modal {
+    width: 100%;
+    max-width: 430px;
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 32px;
+    text-align: center;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.25);
+    animation: deleteModalIn 0.25s ease;
+}
+
+.delete-modal-icon {
+    width: 66px;
+    height: 66px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff0f0;
+    border: 1px solid #ffd7d7;
+    color: #dc2626;
+    font-size: 36px;
+    font-weight: 700;
+}
+
+.delete-modal h3 {
+    color: #172554;
+    font-size: 24px;
+    font-weight: 750;
+    margin: 0 0 14px;
+}
+
+.delete-modal p {
+    color: #64748b;
+    font-size: 15px;
+    line-height: 1.7;
+    margin: 0 0 8px;
+}
+
+    .delete-modal p strong {
+        color: #172554;
+        font-weight: 700;
+    }
+
+.delete-modal .delete-modal-warning {
+    color: #dc2626;
+    font-size: 13px;
+    margin-top: 12px;
+}
+
+.delete-modal-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 28px;
+}
+
+    .delete-modal-actions button {
+        flex: 1;
+        min-height: 46px;
+        border: 0;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 650;
+        cursor: pointer;
+        transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+.delete-cancel-btn {
+    background: #f1f5f9;
+    color: #334155;
+}
+
+    .delete-cancel-btn:hover {
+        background: #e2e8f0;
+    }
+
+.delete-confirm-btn {
+    background: #dc2626;
+    color: #ffffff;
+}
+
+    .delete-confirm-btn:hover {
+        background: #b91c1c;
+        transform: translateY(-1px);
+    }
+
+.delete-modal-actions button:focus-visible {
+    outline: 3px solid #93c5fd;
+    outline-offset: 3px;
+}
+
+@keyframes deleteOverlayIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes deleteModalIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@media (max-width: 480px) {
+    .delete-modal {
+        padding: 26px 20px;
+    }
+
+    .delete-modal-actions {
+        flex-direction: column-reverse;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .delete-modal-overlay,
+    .delete-modal {
+        animation: none;
+    }
+
+    .delete-modal-actions button {
+        transition: none;
+    }
+}
+
+
+
+/* Takım logoları */
+.team-logo {
+    width: 46px;
+    height: 46px;
+    object-fit: contain;
+    display: block;
+    padding: 3px;
+    border-radius: 10px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    transition: transform 0.2s ease;
+}
+
+    .team-logo:hover {
+        transform: scale(1.12);
+    }
+
+
+
+/* Admin puan durumu takım bağlantısı */
+a.team-detail-link.standings-team-link,
+a.team-detail-link.standings-team-link:link,
+a.team-detail-link.standings-team-link:visited {
+    color: #263b58 !important;
+    text-decoration: none !important;
+}
+
+    a.team-detail-link.standings-team-link:hover,
+    a.team-detail-link.standings-team-link:focus {
+        color: #2563eb !important;
+        text-decoration: none !important;
+    }
+
+    a.team-detail-link.standings-team-link img {
+        border: 0;
+    }

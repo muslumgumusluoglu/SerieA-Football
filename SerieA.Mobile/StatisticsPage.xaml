@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="SerieA.Mobile.StatisticsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Title="İstatistikler"
+    BackgroundColor="#071226"
+    Shell.NavBarIsVisible="False">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="14,18,14,24"
+                             Spacing="16">
+
+            <VerticalStackLayout Spacing="5">
+                <Label Text="SERIE A · 2026/27"
+                       FontSize="11"
+                       FontAttributes="Bold"
+                       TextColor="#65A0FF" />
+
+                <Label Text="Lig İstatistikleri"
+                       FontSize="27"
+                       FontAttributes="Bold"
+                       TextColor="#F2F5FF" />
+
+                <Label Text="Gol krallığını, maç sonuçlarını ve haftalık gol sayılarını keşfet."
+                       FontSize="12"
+                       TextColor="#91A9D2" />
+            </VerticalStackLayout>
+
+            <Button x:Name="RefreshButton"
+                    Text="↻  İstatistikleri Yenile"
+                    Clicked="OnRefreshClicked"
+                    BackgroundColor="#183867"
+                    TextColor="#FFFFFF"
+                    BorderColor="#29446D"
+                    BorderWidth="1"
+                    CornerRadius="10"
+                    HorizontalOptions="Start"
+                    Padding="15,9" />
+
+            <ActivityIndicator x:Name="LoadingIndicator"
+                               IsRunning="False"
+                               IsVisible="False"
+                               Color="#65A0FF" />
+
+            <Label x:Name="MessageLabel"
+                   Text=""
+                   FontSize="12"
+                   TextColor="#FF7798"
+                   IsVisible="False" />
+
+            <Border BackgroundColor="#101E38"
+                    Stroke="#29446D"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 14"
+                    Padding="14">
+
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Genel Bakış"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="#F2F5FF" />
+
+                    <VerticalStackLayout x:Name="OverviewContainer"
+                                         Spacing="8" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border BackgroundColor="#101E38"
+                    Stroke="#29446D"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 14"
+                    Padding="14">
+
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="⚽  Gol Krallığı"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="#F2F5FF" />
+
+                    <VerticalStackLayout x:Name="ScorersContainer"
+                                         Spacing="8" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border BackgroundColor="#101E38"
+                    Stroke="#29446D"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 14"
+                    Padding="14">
+
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="🔥  En Gollü Maçlar"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="#F2F5FF" />
+
+                    <VerticalStackLayout x:Name="MatchesContainer"
+                                         Spacing="8" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border BackgroundColor="#101E38"
+                    Stroke="#29446D"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 14"
+                    Padding="14">
+
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="📊  Haftalara Göre Goller"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="#F2F5FF" />
+
+                    <VerticalStackLayout x:Name="GoalsByWeekContainer"
+                                         Spacing="8" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Label Text="SERIE A · Tüm lig bilgileri tek yerde."
+                   FontSize="10"
+                   TextColor="#7188AD"
+                   HorizontalTextAlignment="Center"
+                   Margin="0,4,0,0" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

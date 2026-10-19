@@ -1,0 +1,52 @@
+﻿@model SerieA.WebUI.Areas.Admin.Models.TeamViewModel
+
+@{
+    ViewData["Title"] = "Takım Düzenle";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="page-head">
+    <div>
+        <h2 class="page-title">Takım Düzenle</h2>
+        <p class="page-desc">Takım bilgilerini güncelleyin.</p>
+    </div>
+</div>
+
+<div class="card-a" style="max-width: 650px;">
+
+    <form action="/Admin/Teams/Edit/@Model.Id" method="post">
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" name="Id" value="@Model.Id" />
+
+        <div asp-validation-summary="ModelOnly"
+             class="alert alert-danger"
+             role="alert"></div>
+
+        <div class="mb-3">
+            <label for="Name" class="form-label">Takım Adı</label>
+
+            <input type="text"
+                   id="Name"
+                   name="Name"
+                   value="@Model.Name"
+                   class="form-control"
+                   maxlength="100"
+                   required />
+
+            <span asp-validation-for="Name"
+                  class="text-danger"></span>
+        </div>
+
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn-a">
+                Değişiklikleri Kaydet
+            </button>
+
+            <a href="/Admin/Teams/Index"
+               class="btn btn-outline-secondary">
+                Vazgeç
+            </a>
+        </div>
+    </form>
+</div>

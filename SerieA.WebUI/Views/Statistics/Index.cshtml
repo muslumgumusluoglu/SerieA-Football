@@ -1,0 +1,553 @@
+﻿@model SerieA.WebUI.Models.StatisticsViewModel
+
+@{
+    ViewData["Title"] = "Serie A İstatistikleri";
+    Layout = "_Layout";
+    ViewData["BodyClass"] = "statistics-page";
+}
+
+@section Styles {
+    <style>
+
+        /* Ortak sayfa gövdesi _Layout.cshtml tarafından oluşturulur. */
+        body.statistics-page {
+            min-height: 100vh;
+            background: #070F1F;
+            color: #E9F0FB;
+            font-family: "Segoe UI", sans-serif;
+        }
+
+        /* Yalnızca istatistik içeriğinin boşlukları */
+        .stats-page {
+            padding: 28px 0 60px;
+            color: #E9F0FB;
+            font-family: "Segoe UI", sans-serif;
+        }
+
+        .stats-hero, .stats-card, .stats-section {
+            background: #0F1D38;
+            border: 1px solid #1F3358;
+            border-radius: 16px;
+        }
+
+        .stats-hero {
+            padding: 28px;
+            margin-bottom: 24px;
+            background: linear-gradient(120deg, #142647, #0B1730);
+        }
+
+        .stats-muted {
+            color: #8B9CC0;
+        }
+
+        .stats-blue {
+            color: #60A5FA;
+        }
+
+        .stats-card {
+            height: 100%;
+            padding: 20px;
+        }
+
+        .stats-number {
+            font-size: 2rem;
+            font-weight: 750;
+            margin-top: 8px;
+        }
+
+        .stats-section {
+            overflow: hidden;
+            margin-top: 24px;
+        }
+
+        .stats-section-title {
+            padding: 18px 20px;
+            margin: 0;
+            font-size: 1.15rem;
+            border-bottom: 1px solid #1F3358;
+        }
+
+        .stats-table {
+            width: 100%;
+            margin: 0;
+            color: #E9F0FB;
+            border-collapse: collapse;
+        }
+
+            .stats-table th, .stats-table td {
+                padding: 13px 18px;
+                border-bottom: 1px solid #1F3358;
+                text-align: left;
+                vertical-align: middle;
+            }
+
+            .stats-table th {
+                color: #8B9CC0;
+                font-size: .85rem;
+                font-weight: 600;
+            }
+
+            .stats-table tr:last-child td {
+                border-bottom: 0;
+            }
+
+        .stats-team-logo {
+            width: 25px;
+            height: 25px;
+            object-fit: contain;
+            margin-right: 8px;
+        }
+
+        .stats-score {
+            font-weight: 800;
+            font-size: 1.05rem;
+            white-space: nowrap;
+        }
+
+        .stats-empty {
+            padding: 24px;
+            color: #8B9CC0;
+        }
+
+        .stats-table-wrap {
+            overflow-x: auto;
+        }
+
+        @@media (max-width: 767px) {
+            .stats-hero {
+                padding: 20px;
+            }
+
+            .stats-number {
+                font-size: 1.65rem;
+            }
+
+            .stats-table {
+                min-width: 480px;
+            }
+        }
+
+
+        .stats-chart {
+            padding: 22px;
+            background: linear-gradient(145deg, #0F1D38, #0B1730);
+            border: 1px solid #1F3358;
+            border-radius: 16px;
+            margin-top: 24px;
+        }
+
+        .stats-chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .stats-chart-title {
+            color: #E9F0FB;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .stats-chart-subtitle {
+            color: #8B9CC0;
+            font-size: .85rem;
+            margin-top: 5px;
+        }
+
+        .weekly-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 5px;
+            height: 230px;
+            padding: 20px 2px 0;
+            border-bottom: 1px solid #294064;
+            background: repeating-linear-gradient( to bottom, transparent 0, transparent 49px, rgba(96, 165, 250, .08) 50px );
+        }
+
+        .week-bar-item {
+            flex: 1;
+            min-width: 0;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        .week-bar {
+            width: 70%;
+            min-width: 3px;
+            max-width: 24px;
+            border-radius: 5px 5px 0 0;
+            background: linear-gradient(180deg, #60A5FA, #2563EB);
+            transition: filter .2s, transform .2s;
+        }
+
+            .week-bar:hover {
+                filter: brightness(1.3);
+                transform: scaleX(1.12);
+            }
+
+        .week-label {
+            height: 22px;
+            padding-top: 5px;
+            font-size: .65rem;
+            color: #8B9CC0;
+            white-space: nowrap;
+        }
+
+        .team-chart-list {
+            display: flex;
+            flex-direction: column;
+            gap: 17px;
+        }
+
+        .team-chart-row {
+            display: grid;
+            grid-template-columns: minmax(100px, 160px) 1fr 36px;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .team-chart-name {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: #C4D0E6;
+            font-size: .9rem;
+        }
+
+        .team-chart-track {
+            height: 10px;
+            overflow: hidden;
+            border-radius: 99px;
+            background: #1B2B49;
+        }
+
+        .team-chart-fill {
+            height: 100%;
+            border-radius: 99px;
+            background: linear-gradient(90deg, #2563EB, #60A5FA);
+        }
+
+        .team-chart-value {
+            color: #60A5FA;
+            font-weight: 700;
+            text-align: right;
+        }
+
+        .stats-chart-legend {
+            color: #8B9CC0;
+            font-size: .8rem;
+            margin-top: 12px;
+        }
+
+        @@media (max-width: 600px) {
+            .stats-chart {
+                padding: 15px;
+            }
+
+            .weekly-chart {
+                gap: 2px;
+                height: 190px;
+            }
+
+            .team-chart-row {
+                grid-template-columns: 95px 1fr 28px;
+                gap: 7px;
+            }
+
+            .team-chart-name {
+                font-size: .78rem;
+            }
+        }
+
+    </style>
+}
+
+
+
+<div class="stats-page">
+    <div class="container-xl">
+
+        <header class="stats-hero">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div>
+                    <div class="stats-muted mb-2">İTALYA · SERIE A · 2026/27</div>
+                    <h1 class="display-5 fw-bold mb-2">
+                        Serie A İstatistikleri
+                    </h1>
+                    <p class="stats-muted mb-0">
+                        Lig performansı, gol krallığı ve maç rekorları.
+                    </p>
+                </div>
+                <div class="text-md-end">
+                    <div class="stats-muted">Tamamlanan hafta</div>
+                    <div class="display-6 fw-bold">
+                        @Model.CompletedWeeks <small class="fs-6">/ 38</small>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        @if (!string.IsNullOrWhiteSpace(Model.Error))
+        {
+            <div class="alert alert-danger">@Model.Error</div>
+        }
+
+        <div class="row g-3">
+            <div class="col-6 col-xl-3">
+                <div class="stats-card">
+                    <div class="stats-muted">Tamamlanan maç</div>
+                    <div class="stats-number">@Model.FinishedMatches</div>
+                    <div class="stats-blue small">Oynanmış karşılaşmalar</div>
+                </div>
+            </div>
+
+            <div class="col-6 col-xl-3">
+                <div class="stats-card">
+                    <div class="stats-muted">Toplam gol</div>
+                    <div class="stats-number">@Model.TotalGoals</div>
+                    <div class="stats-blue small">Tamamlanan maçlarda</div>
+                </div>
+            </div>
+
+            <div class="col-6 col-xl-3">
+                <div class="stats-card">
+                    <div class="stats-muted">Maç başına gol</div>
+                    <div class="stats-number">
+                        @Model.AverageGoals.ToString("0.00")
+                    </div>
+                    <div class="stats-blue small">Gol ortalaması</div>
+                </div>
+            </div>
+
+            <div class="col-6 col-xl-3">
+                <div class="stats-card">
+                    <div class="stats-muted">Toplam kart</div>
+                    <div class="stats-number">@Model.TotalCards</div>
+                    <div class="stats-blue small">Tamamlanan maçlarda</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 mt-1">
+            <div class="col-6">
+                <div class="stats-card">
+                    <div class="stats-muted">Takım sayısı</div>
+                    <div class="stats-number">@Model.TotalTeams</div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="stats-card">
+                    <div class="stats-muted">Başlamamış maç</div>
+                    <div class="stats-number">@Model.RemainingMatches</div>
+                </div>
+            </div>
+        </div>
+
+
+        @{
+            var maxWeeklyGoals = Math.Max(
+            Model.WeeklyGoals.Select(x => x.Goals).DefaultIfEmpty(0).Max(),
+            1);
+
+            var topScoringTeams = Model.TeamPerformances
+            .OrderByDescending(x => x.GoalsFor)
+            .ThenBy(x => x.TeamName)
+            .Take(8)
+            .ToList();
+
+            var maxTeamGoals = Math.Max(
+            topScoringTeams.Select(x => x.GoalsFor).DefaultIfEmpty(0).Max(),
+            1);
+        }
+
+        <section class="stats-chart">
+            <div class="stats-chart-header">
+                <div>
+                    <h2 class="stats-chart-title">📈 Haftalara Göre Gol Trendi</h2>
+                    <div class="stats-chart-subtitle">
+                        Tamamlanmış maçlarda haftalık toplam gol
+                    </div>
+                </div>
+                <span class="stats-blue fw-bold">38 Hafta</span>
+            </div>
+
+            <div class="weekly-chart">
+                @foreach (var week in Model.WeeklyGoals.OrderBy(x => x.Week))
+                {
+                    var barHeight = week.Goals == 0
+                    ? 3
+                    : Math.Max(5, (int)Math.Round(
+                    (double)week.Goals / maxWeeklyGoals * 170));
+
+                    <div class="week-bar-item"
+                         title="@($"{week.Week}. hafta: {week.Goals} gol, {week.FinishedMatches} tamamlanan maç")">
+                        <div class="week-bar"
+                             style="height: @(barHeight)px">
+                        </div>
+                        <div class="week-label">
+                            @(week.Week == 1 || week.Week % 5 == 0 || week.Week == 38
+                                                    ? week.Week
+                                                    : "")
+                    </div>
+                </div>
+                                }
+            </div>
+
+            <div class="stats-chart-legend">
+                Her sütun bir haftayı gösterir. Sütunun üzerine gelerek
+                o haftanın gol ve tamamlanan maç sayısını görebilirsin.
+            </div>
+        </section>
+
+        <section class="stats-chart">
+            <div class="stats-chart-header">
+                <div>
+                    <h2 class="stats-chart-title">⚽ En Golcü Takımlar</h2>
+                    <div class="stats-chart-subtitle">
+                        Tamamlanmış maçlarda atılan toplam gol
+                    </div>
+                </div>
+                <span class="stats-blue fw-bold">İlk 8</span>
+            </div>
+
+            @if (topScoringTeams.Count == 0)
+            {
+                <div class="stats-muted">Takım verisi bulunamadı.</div>
+            }
+            else
+            {
+                <div class="team-chart-list">
+                    @foreach (var team in topScoringTeams)
+                    {
+                        var width = (double)team.GoalsFor / maxTeamGoals * 100;
+
+                        <div class="team-chart-row">
+                            <div class="team-chart-name" title="@team.TeamName">
+                                @if (!string.IsNullOrWhiteSpace(team.LogoUrl))
+                                {
+                                    <img src="@team.LogoUrl"
+                                         alt=""
+                                         class="stats-team-logo" />
+                                }
+                                @team.TeamName
+                            </div>
+
+                            <div class="team-chart-track">
+                                <div class="team-chart-fill"
+                                     style="width: @(width.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture))%">
+                                </div>
+                            </div>
+
+                            <div class="team-chart-value">@team.GoalsFor</div>
+                        </div>
+                    }
+                </div>
+            }
+        </section>
+
+
+        <section class="stats-section">
+            <h2 class="stats-section-title">
+                <span class="me-2">⚽</span> Gol Krallığı
+            </h2>
+
+            @if (Model.TopScorers.Count == 0)
+            {
+                <div class="stats-empty">Henüz golcü kaydı bulunmuyor.</div>
+            }
+            else
+            {
+                <div class="stats-table-wrap">
+                    <table class="stats-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Oyuncu</th>
+                                <th>Takım</th>
+                                <th>Gol</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var rank = 0;
+                            }
+                            @foreach (var scorer in Model.TopScorers)
+                            {
+                                rank++;
+                                <tr>
+                                    <td>@rank</td>
+                                    <td class="fw-semibold">@scorer.PlayerName</td>
+                                    <td>
+                                        @if (!string.IsNullOrWhiteSpace(scorer.TeamLogo))
+                                        {
+                                            <img class="stats-team-logo"
+                                                 src="@scorer.TeamLogo"
+                                                 alt="" />
+                                        }
+                                        @scorer.TeamName
+                                    </td>
+                                    <td class="fw-bold stats-blue">@scorer.Goals</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </section>
+
+        <section class="stats-section">
+            <h2 class="stats-section-title">
+                <span class="me-2">🔥</span> En Gollü Maçlar
+            </h2>
+
+            @if (Model.HighScoringMatches.Count == 0)
+            {
+                <div class="stats-empty">Henüz tamamlanmış maç bulunmuyor.</div>
+            }
+            else
+            {
+                <div class="stats-table-wrap">
+                    <table class="stats-table">
+                        <thead>
+                            <tr>
+                                <th>Hafta</th>
+                                <th>Maç</th>
+                                <th>Skor</th>
+                                <th>Gol</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var match in Model.HighScoringMatches)
+                            {
+                                <tr>
+                                    <td>@match.Week</td>
+                                    <td>
+                                        @match.HomeTeam
+                                        <span class="stats-muted mx-1">-</span>
+                                        @match.AwayTeam
+                                    </td>
+                                    <td class="stats-score">
+                                        @match.HomeScore - @match.AwayScore
+                                    </td>
+                                    <td class="stats-blue fw-bold">
+                                        @match.TotalGoals
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </section>
+
+        <div class="text-center stats-muted small mt-4">
+            İstatistikler tamamlanmış maçların verilerinden hesaplanır.
+        </div>
+    </div>
+</div>

@@ -1,0 +1,662 @@
+﻿@model MatchDetailViewModel
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+@{
+    ViewData["Title"] = "Maç Detayı";
+    var durum = Model.Status switch
+    {
+        "Finished" => "Tamamlandı",
+        "Live" => "Canlı",
+        "Postponed" => "Ertelendi",
+        _ => "Başlamadı"
+    };
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>Maç Detayı</h2>
+            <p class="text-muted mb-0">@Model.Week. Hafta</p>
+        </div>
+        <a asp-area="Admin"
+           asp-controller="Matches"
+           asp-action="Index"
+           asp-route-week="@Model.Week"
+           class="btn btn-outline-secondary">
+            ← Maçlara Dön
+        </a>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body py-4">
+            <div class="row align-items-center text-center">
+                <div class="col-4">
+                    @if (!string.IsNullOrWhiteSpace(Model.HomeTeamLogoUrl))
+                    {
+                        <img src="@Model.HomeTeamLogoUrl"
+                             alt="@Model.HomeTeamName"
+                             style="width:70px;height:70px;object-fit:contain"
+                             class="mb-2" />
+                    }
+                    <h5>@Model.HomeTeamName</h5>
+                </div>
+
+                <div class="col-4">
+                    <div class="display-5 fw-bold">
+                        @(Model.HomeScore?.ToString() ?? "-")
+                        :
+                        @(Model.AwayScore?.ToString() ?? "-")
+                    </div>
+                    <span class="badge bg-secondary mt-2">@durum</span>
+                    <div class="text-muted small mt-2">
+                        @Model.MatchDate.ToString("dd.MM.yyyy HH:mm")
+                    </div>
+                    <div class="text-muted small">@Model.Stadium</div>
+                </div>
+
+                <div class="col-4">
+                    @if (!string.IsNullOrWhiteSpace(Model.AwayTeamLogoUrl))
+                    {
+                        <img src="@Model.AwayTeamLogoUrl"
+                             alt="@Model.AwayTeamName"
+                             style="width:70px;height:70px;object-fit:contain"
+                             class="mb-2" />
+                    }
+                    <h5>@Model.AwayTeamName</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header fw-bold">⚽ Goller</div>
+
+
+                <div class="card-body border-bottom">
+                    <form asp-area="Admin"
+                          asp-controller="Matches"
+                          asp-action="AddGoal"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden"
+                               name="MatchId"
+                               value="@Model.Id" />
+
+                        <div class="mb-2">
+                            <label class="form-label">Takım</label>
+                            <select name="TeamId" class="form-select" required>
+                                <option value="">Takım seçin</option>
+                                <option value="@Model.HomeTeamId">
+                                    @Model.HomeTeamName
+                                </option>
+                                <option value="@Model.AwayTeamId">
+                                    @Model.AwayTeamName
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label">Golü atan oyuncu</label>
+                            <input type="text"
+                                   name="PlayerName"
+                                   class="form-control"
+                                   maxlength="100"
+                                   required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Dakika</label>
+                            <input type="number"
+                                   name="Minute"
+                                   class="form-control"
+                                   min="1"
+                                   max="130"
+                                   required />
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            + Gol Ekle
+                        </button>
+                    </form>
+                </div>
+
+
+
+                <div class="card-body">
+                    @if (Model.Goals.Count == 0)
+                    {
+                        <p class="text-muted mb-0">Henüz gol kaydı yok.</p>
+                    }
+                    else
+                    {
+                        <ul class="list-group list-group-flush">
+                            @foreach (var goal in Model.Goals.OrderBy(g => g.Minute))
+                            {
+                                var takim = goal.TeamId == Model.HomeTeamId
+                                ? Model.HomeTeamName
+                                : Model.AwayTeamName;
+
+                                <li class="list-group-item px-0">
+                                    <div class="d-flex justify-content-between align-items-center gap-2">
+                                        <div>
+                                            <strong>@goal.Minute'</strong>
+                                            @goal.PlayerName
+                                            <div class="small text-muted">@takim</div>
+                                        </div>
+
+
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-danger"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#golSilModal"
+                                                data-match-id="@Model.Id"
+                                                data-goal-id="@goal.Id"
+                                                data-player-name="@goal.PlayerName"
+                                                data-minute="@goal.Minute">
+                                            <i class="bi bi-trash"></i> Sil
+                                        </button>
+
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    }
+                </div>
+
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header fw-bold">🟨 Kartlar</div>
+
+                <form asp-area="Admin"
+                      asp-controller="Matches"
+                      asp-action="AddCard"
+                      method="post"
+                      class="p-3 border-bottom">
+
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" name="MatchId" value="@Model.Id" />
+
+                    <div class="row g-2">
+
+                        <div class="col-md-6">
+                            <label class="form-label">Takım</label>
+                            <select name="TeamId" class="form-select" required>
+                                <option value="">Takım seç</option>
+                                <option value="@Model.HomeTeamId">
+                                    @Model.HomeTeamName
+                                </option>
+                                <option value="@Model.AwayTeamId">
+                                    @Model.AwayTeamName
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Oyuncu adı</label>
+                            <input type="text"
+                                   name="PlayerName"
+                                   class="form-control"
+                                   maxlength="100"
+                                   placeholder="Oyuncunun adı"
+                                   required />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Dakika</label>
+                            <input type="number"
+                                   name="Minute"
+                                   class="form-control"
+                                   min="1"
+                                   max="130"
+                                   value="1"
+                                   required />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Kart türü</label>
+                            <select name="CardType" class="form-select" required>
+                                <option value="Yellow">Sarı Kart</option>
+                                <option value="Red">Kırmızı Kart</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-warning">
+                                🟨 Kart Ekle
+                            </button>
+                        </div>
+
+                    </div>
+                </form>
+
+
+                <div class="card-body">
+                    @if (Model.Cards.Count == 0)
+                    {
+                        <p class="text-muted mb-0">Henüz kart kaydı yok.</p>
+                    }
+                    else
+                    {
+                        <ul class="list-group list-group-flush">
+                            @foreach (var card in Model.Cards.OrderBy(c => c.Minute))
+                            {
+                                var takim = card.TeamId == Model.HomeTeamId
+                                ? Model.HomeTeamName
+                                : Model.AwayTeamName;
+
+                                var sariKart = card.CardType == "Yellow";
+
+                                <li class="list-group-item px-0">
+                                    <div class="d-flex justify-content-between align-items-center gap-2">
+                                        <div>
+                                            <strong>@card.Minute'</strong>
+                                            <span class="badge @(sariKart ? "bg-warning text-dark" : "bg-danger")">
+                                                @(sariKart ? "🟨 Sarı Kart" : "🟥 Kırmızı Kart")
+                                            </span>
+                                            <span class="ms-1">@card.PlayerName</span>
+                                            <div class="small text-muted">@takim</div>
+                                        </div>
+
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-danger"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#kartSilModal"
+                                                data-match-id="@Model.Id"
+                                                data-card-id="@card.Id"
+                                                data-player-name="@card.PlayerName"
+                                                data-minute="@card.Minute"
+                                                data-card-type="@card.CardType">
+                                            <i class="bi bi-trash"></i> Sil
+                                        </button>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    }
+                </div>
+
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header fw-bold">🔄 Oyuncu Değişiklikleri</div>
+
+
+                <form asp-area="Admin"
+                      asp-controller="Matches"
+                      asp-action="AddSubstitution"
+                      method="post"
+                      class="p-3 border-bottom">
+
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" name="MatchId" value="@Model.Id" />
+
+                    <div class="row g-2">
+
+                        <div class="col-12">
+                            <label class="form-label">Takım</label>
+                            <select name="TeamId" class="form-select" required>
+                                <option value="">Takım seç</option>
+                                <option value="@Model.HomeTeamId">
+                                    @Model.HomeTeamName
+                                </option>
+                                <option value="@Model.AwayTeamId">
+                                    @Model.AwayTeamName
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Oyundan çıkan oyuncu</label>
+                            <input type="text"
+                                   name="PlayerOut"
+                                   class="form-control"
+                                   maxlength="100"
+                                   placeholder="Oyuncunun adı"
+                                   required />
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Oyuna giren oyuncu</label>
+                            <input type="text"
+                                   name="PlayerIn"
+                                   class="form-control"
+                                   maxlength="100"
+                                   placeholder="Oyuncunun adı"
+                                   required />
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Dakika</label>
+                            <input type="number"
+                                   name="Minute"
+                                   class="form-control"
+                                   min="1"
+                                   max="130"
+                                   value="1"
+                                   required />
+                        </div>
+
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary">
+                                🔄 Değişiklik Ekle
+                            </button>
+                        </div>
+
+                    </div>
+                </form>
+
+                <div class="card-body">
+                    @if (Model.Substitutions.Count == 0)
+                    {
+                        <p class="text-muted mb-0">Henüz oyuncu değişikliği yok.</p>
+                    }
+                    else
+                    {
+                        <ul class="list-group list-group-flush">
+                            @foreach (var sub in Model.Substitutions.OrderBy(s => s.Minute))
+                            {
+                                var takim = sub.TeamId == Model.HomeTeamId
+                                ? Model.HomeTeamName
+                                : Model.AwayTeamName;
+
+                                <li class="list-group-item px-0">
+                                    <div class="d-flex justify-content-between align-items-center gap-2">
+                                        <div>
+                                            <strong>@sub.Minute'</strong>
+                                            <div class="mt-1">
+                                                <span class="text-success">↑</span>
+                                                @sub.PlayerIn
+                                            </div>
+                                            <div>
+                                                <span class="text-danger">↓</span>
+                                                @sub.PlayerOut
+                                            </div>
+                                            <div class="small text-muted">@takim</div>
+                                        </div>
+
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-danger"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#degisiklikSilModal"
+                                                data-match-id="@Model.Id"
+                                                data-substitution-id="@sub.Id"
+                                                data-player-in="@sub.PlayerIn"
+                                                data-player-out="@sub.PlayerOut"
+                                                data-minute="@sub.Minute"
+                                                data-team="@takim">
+                                            <i class="bi bi-trash"></i> Sil
+                                        </button>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    }
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal fade" id="golSilModal" tabindex="-1"
+     aria-labelledby="golSilModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="golSilModalLabel">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Gol Kaydını Sil
+                </h5>
+                <button type="button" class="btn-close btn-close-white"
+                        data-bs-dismiss="modal" aria-label="Kapat"></button>
+            </div>
+
+            <div class="modal-body p-4">
+                <p class="mb-2">Bu gol kaydını silmek istediğine emin misin?</p>
+                <div class="rounded p-3 bg-light">
+                    <div><strong>Oyuncu:</strong> <span id="silGolOyuncu"></span></div>
+                    <div><strong>Dakika:</strong> <span id="silGolDakika"></span>'</div>
+                </div>
+                <p class="text-muted small mt-3 mb-0">
+                    Bu işlem geri alınamaz.
+                </p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                    Vazgeç
+                </button>
+
+                <form asp-area="Admin"
+                      asp-controller="Matches"
+                      asp-action="DeleteGoal"
+                      method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="matchId" id="silGolMatchId" />
+                    <input type="hidden" name="goalId" id="silGolGoalId" />
+
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash me-1"></i> Evet, Sil
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const modal = document.getElementById("golSilModal");
+
+        modal.addEventListener("show.bs.modal", function (event) {
+            const button = event.relatedTarget;
+
+            document.getElementById("silGolMatchId").value =
+                button.getAttribute("data-match-id");
+
+            document.getElementById("silGolGoalId").value =
+                button.getAttribute("data-goal-id");
+
+            document.getElementById("silGolOyuncu").textContent =
+                button.getAttribute("data-player-name");
+
+            document.getElementById("silGolDakika").textContent =
+                button.getAttribute("data-minute");
+        });
+    });
+</script>
+
+
+
+<div class="modal fade" id="kartSilModal" tabindex="-1"
+     aria-labelledby="kartSilModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="kartSilModalLabel">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Kart Kaydını Sil
+                </h5>
+                <button type="button" class="btn-close btn-close-white"
+                        data-bs-dismiss="modal" aria-label="Kapat"></button>
+            </div>
+
+            <div class="modal-body p-4">
+                <p class="mb-2">Bu kart kaydını silmek istediğine emin misin?</p>
+
+                <div class="rounded p-3 bg-light">
+                    <div><strong>Oyuncu:</strong> <span id="silKartOyuncu"></span></div>
+                    <div><strong>Dakika:</strong> <span id="silKartDakika"></span>'</div>
+                    <div><strong>Kart:</strong> <span id="silKartTuru"></span></div>
+                </div>
+
+                <p class="text-muted small mt-3 mb-0">
+                    Bu işlem geri alınamaz.
+                </p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                    Vazgeç
+                </button>
+
+                <form asp-area="Admin"
+                      asp-controller="Matches"
+                      asp-action="DeleteCard"
+                      method="post">
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" name="matchId" id="silKartMatchId" />
+                    <input type="hidden" name="cardId" id="silKartCardId" />
+
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash me-1"></i> Evet, Sil
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const modal = document.getElementById("kartSilModal");
+
+        modal.addEventListener("show.bs.modal", function (event) {
+            const button = event.relatedTarget;
+
+            document.getElementById("silKartMatchId").value =
+                button.getAttribute("data-match-id");
+
+            document.getElementById("silKartCardId").value =
+                button.getAttribute("data-card-id");
+
+            document.getElementById("silKartOyuncu").textContent =
+                button.getAttribute("data-player-name");
+
+            document.getElementById("silKartDakika").textContent =
+                button.getAttribute("data-minute");
+
+            const kartTuru =
+                button.getAttribute("data-card-type");
+
+            document.getElementById("silKartTuru").textContent =
+                kartTuru === "Yellow" ? "Sarı Kart" : "Kırmızı Kart";
+        });
+    });
+</script>
+
+
+
+
+<div class="modal fade" id="degisiklikSilModal" tabindex="-1"
+     aria-labelledby="degisiklikSilModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="degisiklikSilModalLabel">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Oyuncu Değişikliğini Sil
+                </h5>
+                <button type="button" class="btn-close btn-close-white"
+                        data-bs-dismiss="modal" aria-label="Kapat"></button>
+            </div>
+
+            <div class="modal-body p-4">
+                <p>Bu oyuncu değişikliğini silmek istediğine emin misin?</p>
+
+                <div class="rounded p-3 bg-light">
+                    <div><strong>Takım:</strong> <span id="silDegisiklikTakim"></span></div>
+                    <div><strong>Dakika:</strong> <span id="silDegisiklikDakika"></span>'</div>
+                    <div class="mt-2">
+                        <span class="text-success">↑</span>
+                        <strong>Oyuna giren:</strong>
+                        <span id="silDegisiklikGiren"></span>
+                    </div>
+                    <div>
+                        <span class="text-danger">↓</span>
+                        <strong>Oyundan çıkan:</strong>
+                        <span id="silDegisiklikCikan"></span>
+                    </div>
+                </div>
+
+                <p class="text-muted small mt-3 mb-0">
+                    Bu işlem geri alınamaz.
+                </p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                    Vazgeç
+                </button>
+
+                <form asp-area="Admin"
+                      asp-controller="Matches"
+                      asp-action="DeleteSubstitution"
+                      method="post">
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" name="matchId" id="silDegisiklikMatchId" />
+                    <input type="hidden" name="substitutionId" id="silDegisiklikId" />
+
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash me-1"></i> Evet, Sil
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const modal = document.getElementById("degisiklikSilModal");
+
+        modal.addEventListener("show.bs.modal", function (event) {
+            const button = event.relatedTarget;
+
+            document.getElementById("silDegisiklikMatchId").value =
+                button.getAttribute("data-match-id");
+
+            document.getElementById("silDegisiklikId").value =
+                button.getAttribute("data-substitution-id");
+
+            document.getElementById("silDegisiklikTakim").textContent =
+                button.getAttribute("data-team");
+
+            document.getElementById("silDegisiklikDakika").textContent =
+                button.getAttribute("data-minute");
+
+            document.getElementById("silDegisiklikGiren").textContent =
+                button.getAttribute("data-player-in");
+
+            document.getElementById("silDegisiklikCikan").textContent =
+                button.getAttribute("data-player-out");
+        });
+    });
+</script>

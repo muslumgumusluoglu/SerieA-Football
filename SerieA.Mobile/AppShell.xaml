@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="SerieA.Mobile.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:SerieA.Mobile"
+    Shell.FlyoutBehavior="Disabled"
+    Shell.NavBarIsVisible="False"
+    Shell.BackgroundColor="#071226"
+    Shell.ForegroundColor="#F4F7FF"
+    Shell.TitleColor="#F4F7FF"
+    Shell.TabBarBackgroundColor="#0B1930"
+    Shell.TabBarForegroundColor="#65A0FF"
+    Shell.TabBarUnselectedColor="#91A9D2">
+
+    <TabBar>
+        <ShellContent
+            Title="Fikstür"
+            Route="fixtures"
+            ContentTemplate="{DataTemplate local:MainPage}" />
+
+        <ShellContent
+            Title="Puan Durumu"
+            Route="standings"
+            ContentTemplate="{DataTemplate local:StandingsPage}" />
+
+        <ShellContent
+            Title="İstatistikler"
+            Route="statistics"
+            ContentTemplate="{DataTemplate local:StatisticsPage}" />
+    </TabBar>
+
+</Shell>

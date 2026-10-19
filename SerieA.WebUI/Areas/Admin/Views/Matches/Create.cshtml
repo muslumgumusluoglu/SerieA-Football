@@ -1,0 +1,121 @@
+﻿@model SerieA.WebUI.Areas.Admin.Models.CreateMatchViewModel
+@using SerieA.WebUI.Areas.Admin.Models
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Yeni Maç Ekle";
+
+    var teams = ViewBag.Teams as List<TeamViewModel>
+                ?? new List<TeamViewModel>();
+}
+
+<div class="container-fluid py-4">
+    <div class="mb-4">
+        <h2 class="fw-bold">⚽ Yeni Maç Ekle</h2>
+        <p class="text-muted">Yeni Serie A maçı oluştur.</p>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+            <form method="post" action="/Admin/Matches/Create">
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly"
+                     class="alert alert-danger"></div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="HomeTeamId" class="form-label">
+                            Ev Sahibi Takım
+                        </label>
+
+                        <select asp-for="HomeTeamId" class="form-select">
+                            <option value="0">Ev sahibi takımı seçin</option>
+                            @foreach (var team in teams)
+                            {
+                                <option value="@team.Id">@team.Name</option>
+                            }
+                        </select>
+
+                        <span asp-validation-for="HomeTeamId"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="AwayTeamId" class="form-label">
+                            Deplasman Takımı
+                        </label>
+
+                        <select asp-for="AwayTeamId" class="form-select">
+                            <option value="0">Deplasman takımını seçin</option>
+                            @foreach (var team in teams)
+                            {
+                                <option value="@team.Id">@team.Name</option>
+                            }
+                        </select>
+
+                        <span asp-validation-for="AwayTeamId"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Week" class="form-label">
+                            Maç Haftası
+                        </label>
+
+                        <select asp-for="Week" class="form-select">
+                            @for (int i = 1; i <= 38; i++)
+                            {
+                                <option value="@i">@i. Hafta</option>
+                            }
+                        </select>
+
+                        <span asp-validation-for="Week"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="MatchDate" class="form-label">
+                            Maç Tarihi ve Saati
+                        </label>
+
+                        <input asp-for="MatchDate"
+                               type="datetime-local"
+                               asp-format="{0:yyyy-MM-ddTHH:mm}"
+                               class="form-control" />
+
+                        <span asp-validation-for="MatchDate"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label asp-for="Stadium" class="form-label">
+                            Stadyum
+                        </label>
+
+                        <input asp-for="Stadium"
+                               class="form-control"
+                               placeholder="Örn. San Siro"
+                               maxlength="150" />
+
+                        <span asp-validation-for="Stadium"
+                              class="text-danger"></span>
+                    </div>
+                </div>
+
+                <hr class="my-4" />
+
+                <div class="d-flex gap-2 justify-content-end">
+                    <a href="/Admin/Matches"
+                       class="btn btn-outline-secondary">
+                        Vazgeç
+                    </a>
+
+                    <button type="submit" class="btn btn-primary">
+                        Maçı Kaydet
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

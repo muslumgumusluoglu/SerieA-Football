@@ -1,0 +1,350 @@
+﻿@model SerieA.WebUI.Areas.Admin.Models.DashboardViewModel
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Genel Bakış";
+}
+
+<div class="container-fluid py-4">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 fw-bold mb-1">SerieA Yönetim Paneli</h1>
+            <p class="text-muted mb-0">Lig durumuna genel bakış</p>
+        </div>
+        <span class="badge bg-dark fs-6">2026 / 2027 Sezonu</span>
+    </div>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+
+    <!-- İstatistik kartları -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Toplam Takım</div>
+                    <div class="fs-2 fw-bold">@Model.TotalTeams</div>
+                    <a asp-area="Admin" asp-controller="Teams" asp-action="Index"
+                       class="small text-decoration-none">Takımları yönet →</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Toplam Maç</div>
+                    <div class="fs-2 fw-bold">@Model.TotalMatches</div>
+                    <a asp-area="Admin" asp-controller="Matches" asp-action="Index"
+                       class="small text-decoration-none">Maçları yönet →</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Tamamlanan Maç</div>
+                    <div class="fs-2 fw-bold text-success">@Model.FinishedMatches</div>
+                    <span class="small text-muted">Sonucu girilen maçlar</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Oynanmayı Bekleyen</div>
+                    <div class="fs-2 fw-bold text-primary">@Model.PendingMatches</div>
+                    <span class="small text-muted">Başlamamış maçlar</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Canlı maçlar -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white py-3">
+            <h2 class="h5 mb-0">
+                <span class="text-danger">●</span> Canlı Maçlar
+                <span class="badge bg-danger ms-2">@Model.LiveMatchesCount</span>
+            </h2>
+        </div>
+        <div class="card-body">
+            @if (Model.LiveMatches.Any())
+            {
+                <div class="row g-3">
+                    @foreach (var match in Model.LiveMatches)
+                    {
+                        <div class="col-12 col-md-6 col-xl-4">
+                            <div class="border rounded p-3 h-100">
+                                <div class="small text-muted mb-3">
+                                    @match.Week. Hafta · @match.MatchDate.ToString("dd.MM.yyyy HH:mm")
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center gap-2">
+
+                                    <div class="d-flex align-items-center gap-2 flex-fill">
+                                        @if (!string.IsNullOrWhiteSpace(match.HomeTeamLogoUrl))
+                                        {
+                                            <img src="@match.HomeTeamLogoUrl"
+                                                 alt="@match.HomeTeamName"
+                                                 style="width:32px;height:32px;object-fit:contain;"
+                                                 onerror="this.style.display='none'" />
+                                        }
+                                        <span class="fw-semibold">@match.HomeTeamName</span>
+                                    </div>
+
+                                    <span class="fs-5 fw-bold text-danger text-nowrap">
+                                        @(match.HomeScore?.ToString() ?? "-")
+                                        :
+                                        @(match.AwayScore?.ToString() ?? "-")
+                                    </span>
+
+                                    <div class="d-flex align-items-center justify-content-end gap-2 flex-fill">
+                                        <span class="fw-semibold text-end">@match.AwayTeamName</span>
+                                        @if (!string.IsNullOrWhiteSpace(match.AwayTeamLogoUrl))
+                                        {
+                                            <img src="@match.AwayTeamLogoUrl"
+                                                 alt="@match.AwayTeamName"
+                                                 style="width:32px;height:32px;object-fit:contain;"
+                                                 onerror="this.style.display='none'" />
+                                        }
+                                    </div>
+
+                                </div>
+
+                                <div class="text-muted small mt-2">@match.Stadium</div>
+                                <a asp-area="Admin" asp-controller="Matches" asp-action="Details"
+                                   asp-route-id="@match.Id" class="btn btn-sm btn-outline-primary mt-3">
+                                    Maç detayları
+                                </a>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="text-muted mb-0">Şu anda canlı maç bulunmuyor.</p>
+            }
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+
+        <!-- Son maçlar -->
+        <div class="col-12 col-xl-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white py-3">
+                    <h2 class="h5 mb-0">Sonuçlanan Son Maçlar</h2>
+                </div>
+                <div class="card-body p-0">
+                    @if (Model.RecentMatches.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Tarih</th>
+                                        <th>Ev Sahibi</th>
+                                        <th class="text-center">Skor</th>
+                                        <th>Deplasman</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var match in Model.RecentMatches)
+                                    {
+                                        <tr>
+                                            <td class="small">@match.MatchDate.ToString("dd.MM.yy")</td>
+                                            <td>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    @if (!string.IsNullOrWhiteSpace(match.HomeTeamLogoUrl))
+                                                    {
+                                                        <img src="@match.HomeTeamLogoUrl"
+                                                             alt="@match.HomeTeamName"
+                                                             style="width:28px;height:28px;object-fit:contain;"
+                                                             onerror="this.style.display='none'" />
+                                                    }
+                                                    <span>@match.HomeTeamName</span>
+                                                </div>
+                                            </td>
+                                            <td class="text-center fw-bold">
+                                                @match.HomeScore - @match.AwayScore
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    @if (!string.IsNullOrWhiteSpace(match.AwayTeamLogoUrl))
+                                                    {
+                                                        <img src="@match.AwayTeamLogoUrl"
+                                                             alt="@match.AwayTeamName"
+                                                             style="width:28px;height:28px;object-fit:contain;"
+                                                             onerror="this.style.display='none'" />
+                                                    }
+                                                    <span>@match.AwayTeamName</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted p-3 mb-0">Henüz sonuçlanmış maç yok.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Yaklaşan maçlar -->
+        <div class="col-12 col-xl-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white py-3">
+                    <h2 class="h5 mb-0">Yaklaşan Maçlar</h2>
+                </div>
+                <div class="card-body p-0">
+                    @if (Model.UpcomingMatches.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Tarih</th>
+                                        <th>Ev Sahibi</th>
+                                        <th class="text-center">-</th>
+                                        <th>Deplasman</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var match in Model.UpcomingMatches)
+                                    {
+                                        <tr>
+                                            <td class="small">@match.MatchDate.ToString("dd.MM.yy HH:mm")</td>
+                                            <td>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    @if (!string.IsNullOrWhiteSpace(match.HomeTeamLogoUrl))
+                                                    {
+                                                        <img src="@match.HomeTeamLogoUrl"
+                                                             alt="@match.HomeTeamName"
+                                                             style="width:28px;height:28px;object-fit:contain;"
+                                                             onerror="this.style.display='none'" />
+                                                    }
+                                                    <span>@match.HomeTeamName</span>
+                                                </div>
+                                            </td>
+                                            <td class="text-center">vs</td>
+                                            <td>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    @if (!string.IsNullOrWhiteSpace(match.AwayTeamLogoUrl))
+                                                    {
+                                                        <img src="@match.AwayTeamLogoUrl"
+                                                             alt="@match.AwayTeamName"
+                                                             style="width:28px;height:28px;object-fit:contain;"
+                                                             onerror="this.style.display='none'" />
+                                                    }
+                                                    <span>@match.AwayTeamName</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted p-3 mb-0">Yaklaşan maç bulunamadı.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- İlk 5 takım -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+            <h2 class="h5 mb-0">Puan Durumu · İlk 5</h2>
+            <a asp-area="Admin" asp-controller="Standings" asp-action="Index"
+               class="btn btn-sm btn-outline-primary">Tüm sıralama</a>
+        </div>
+        <div class="card-body p-0">
+            @if (Model.TopTeams.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Sıra</th>
+                                <th>Takım</th>
+                                <th class="text-center">O</th>
+                                <th class="text-center">G</th>
+                                <th class="text-center">B</th>
+                                <th class="text-center">M</th>
+                                <th class="text-center">AV</th>
+                                <th class="text-center">Puan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var team in Model.TopTeams)
+                            {
+                                <tr>
+                                    <td class="fw-bold">@team.Position</td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            @if (!string.IsNullOrWhiteSpace(team.LogoUrl))
+                                            {
+                                                <img src="@team.LogoUrl"
+                                                     alt="@team.TeamName"
+                                                     style="width:28px;height:28px;object-fit:contain;"
+                                                     onerror="this.style.display='none'" />
+                                            }
+                                            <span class="fw-semibold">@team.TeamName</span>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">@team.Played</td>
+                                    <td class="text-center">@team.Won</td>
+                                    <td class="text-center">@team.Drawn</td>
+                                    <td class="text-center">@team.Lost</td>
+                                    <td class="text-center">@team.GoalDifference</td>
+                                    <td class="text-center fw-bold">@team.Points</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <p class="text-muted p-3 mb-0">Puan durumu verisi alınamadı.</p>
+            }
+        </div>
+    </div>
+
+    <!-- Hızlı işlemler -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3">
+            <h2 class="h5 mb-0">Hızlı İşlemler</h2>
+        </div>
+        <div class="card-body d-flex flex-wrap gap-2">
+            <a asp-area="Admin" asp-controller="Matches" asp-action="Create"
+               class="btn btn-primary">+ Maç Ekle</a>
+            <a asp-area="Admin" asp-controller="Teams" asp-action="Index"
+               class="btn btn-outline-secondary">Takımları Yönet</a>
+            <a asp-area="Admin" asp-controller="Fixtures" asp-action="Index"
+               class="btn btn-outline-secondary">Fikstürü Aç</a>
+            <a asp-area="Admin" asp-controller="Standings" asp-action="Index"
+               class="btn btn-outline-secondary">Puan Durumu</a>
+        </div>
+    </div>
+
+</div>

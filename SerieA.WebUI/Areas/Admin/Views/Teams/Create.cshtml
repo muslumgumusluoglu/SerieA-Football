@@ -1,0 +1,54 @@
+﻿@model SerieA.WebUI.Areas.Admin.Models.TeamViewModel
+
+@{
+    ViewData["Title"] = "Yeni Takım Ekle";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="page-head">
+    <div>
+        <h2 class="page-title">Yeni Takım Ekle</h2>
+        <p class="page-desc">Serie A ligine yeni bir takım ekleyin.</p>
+    </div>
+</div>
+
+<div class="card-a" style="max-width: 650px;">
+
+    <form asp-area="Admin"
+          asp-controller="Teams"
+          asp-action="Create"
+          method="post">
+
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly"
+             class="alert alert-danger"
+             role="alert"></div>
+
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label">Takım Adı</label>
+
+            <input asp-for="Name"
+                   class="form-control"
+                   placeholder="Örn. Inter"
+                   maxlength="100"
+                   required />
+
+            <span asp-validation-for="Name"
+                  class="text-danger"></span>
+        </div>
+
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn-a">
+                Takımı Kaydet
+            </button>
+
+            <a asp-area="Admin"
+               asp-controller="Teams"
+               asp-action="Index"
+               class="btn btn-outline-secondary">
+                Vazgeç
+            </a>
+        </div>
+    </form>
+</div>

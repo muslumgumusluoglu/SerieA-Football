@@ -1,0 +1,375 @@
+﻿@model List<SerieA.WebUI.Models.StandingViewModel>
+
+@{
+    ViewData["Title"] = "Serie A Puan Durumu";
+    Layout = null;
+}
+
+<style>
+
+    .site-nav {
+        max-width: 1320px;
+        margin: 0 auto;
+        padding: 12px 20px;
+        min-height: 68px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        color: #eaf0ff;
+    }
+
+    .site-nav__brand {
+        color: #f4f7ff;
+        font-size: 18px;
+        font-weight: 800;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .site-nav__links {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .site-nav__link {
+        display: inline-flex;
+        align-items: center;
+        padding: 12px 16px;
+        border: 1px solid transparent;
+        border-radius: 9px;
+        color: #c5d5f5;
+        font-size: 14px;
+        font-weight: 700;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+        .site-nav__link:hover {
+            color: #fff;
+            background: #101d38;
+        }
+
+    .site-nav__link--active {
+        color: #fff;
+        background: #14294b;
+        border-color: #294a7c;
+    }
+
+    .standings-page {
+        max-width: 1320px;
+        margin: 30px auto;
+        padding: 0 20px;
+        color: #eaf0ff;
+    }
+
+    .standings-hero,
+    .standings-table-card {
+        background: #101d38;
+        border: 1px solid #263d65;
+        border-radius: 18px;
+        overflow: hidden;
+        margin-bottom: 22px;
+    }
+
+    .standings-hero {
+        padding: 28px;
+        background-image: repeating-linear-gradient( 90deg, rgba(255,255,255,.025) 0, rgba(255,255,255,.025) 45px, transparent 45px, transparent 90px );
+    }
+
+    .standings-kicker {
+        color: #8daeff;
+        font-size: 13px;
+        letter-spacing: 1px;
+    }
+
+    .standings-hero h1 {
+        font-size: clamp(28px, 4vw, 42px);
+        font-weight: 800;
+        margin: 8px 0;
+    }
+
+    .standings-hero p {
+        color: #9fb5dc;
+        margin: 0;
+    }
+
+    .table-heading {
+        padding: 20px 24px;
+        border-bottom: 1px solid #263d65;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+    }
+
+        .table-heading h2 {
+            font-size: 20px;
+            margin: 0;
+            font-weight: 700;
+        }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .standings-table {
+        width: 100%;
+        min-width: 760px;
+        border-collapse: collapse;
+        margin: 0;
+        color: #eaf0ff;
+    }
+
+        .standings-table thead {
+            background: #0a1429;
+        }
+
+        .standings-table th {
+            color: #8daeff;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 16px 12px;
+            text-align: center;
+            white-space: nowrap;
+            border-bottom: 1px solid #263d65;
+        }
+
+        .standings-table td {
+            padding: 14px 12px;
+            text-align: center;
+            border-bottom: 1px solid #223454;
+            white-space: nowrap;
+        }
+
+        .standings-table tbody tr:hover {
+            background: rgba(66, 133, 244, .08);
+        }
+
+        .standings-table tbody tr:last-child td {
+            border-bottom: 0;
+        }
+
+    .position {
+        color: #9fb5dc;
+        font-weight: 700;
+        width: 55px;
+    }
+
+    .team-cell {
+        text-align: left !important;
+        min-width: 200px;
+    }
+
+    .team-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 700;
+    }
+
+    .team-detail-link {
+        color: #eaf0ff;
+        text-decoration: none;
+        transition: color .2s ease;
+    }
+
+        .team-detail-link:hover {
+            color: #8db7ff;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        .team-detail-link:focus-visible {
+            outline: 2px solid #4387ff;
+            outline-offset: 3px;
+            border-radius: 3px;
+        }
+
+    .team-logo {
+        width: 32px;
+        height: 32px;
+        object-fit: contain;
+    }
+
+    .points {
+        font-size: 19px;
+        font-weight: 800;
+    }
+
+    .positive {
+        color: #39d98a;
+    }
+
+    .negative {
+        color: #ff7777;
+    }
+
+    .standings-error,
+    .standings-empty {
+        color: #9fb5dc;
+        padding: 24px;
+    }
+
+    @@media (max-width: 600px) {
+        .site-nav {
+            padding: 12px 10px;
+            gap: 8px;
+        }
+
+        .site-nav__brand {
+            font-size: 15px;
+        }
+
+        .site-nav__links {
+            gap: 2px;
+        }
+
+        .site-nav__link {
+            padding: 10px 8px;
+            font-size: 12px;
+        }
+
+        .standings-page {
+            padding: 0 10px;
+            margin-top: 16px;
+        }
+
+        .standings-hero {
+            padding: 20px;
+        }
+
+        .table-heading {
+            padding: 16px;
+        }
+    }
+
+    /* Yenile butonu */
+    .refresh-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 9px 16px;
+        border: 1px solid #294779;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #172b4d, #10203b);
+        color: #8db7ff;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all .2s ease;
+    }
+
+        .refresh-btn:hover {
+            background: #2455a4;
+            border-color: #4387ff;
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(46, 123, 255, .2);
+            transform: translateY(-1px);
+        }
+
+        .refresh-btn:focus-visible {
+            outline: 2px solid #4387ff;
+            outline-offset: 3px;
+        }
+</style>
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Serie A Puan Durumu</title>
+</head>
+<body style="margin:0; background:#071121; color:#eaf0ff; font-family:Arial, sans-serif;">
+    <nav class="site-nav">
+        <a class="site-nav__brand" href="/">⚽ SERIE A</a>
+        <div class="site-nav__links">
+            <a class="site-nav__link" href="/">Fikstür</a>
+            <a class="site-nav__link site-nav__link--active" href="/Home/Standings">Puan Durumu</a>
+            <a class="site-nav__link" href="/Statistics/Index">Serie A İstatistikleri</a>
+        </div>
+    </nav>
+
+    <div class="standings-page">
+        <section class="standings-hero">
+            <div class="standings-kicker">ITALYA · SERIE A</div>
+            <h1>🏆 Puan Durumu</h1>
+            <p>Takımların güncel lig sıralaması ve sezon performansı</p>
+        </section>
+
+        <section class="standings-table-card">
+            <div class="table-heading">
+                <h2>Serie A Lig Tablosu</h2>
+                <a href="/Home/Standings" class="refresh-btn">
+                    <span aria-hidden="true">↻</span>
+                    Yenile
+                </a>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(ViewBag.Error as string))
+            {
+                <div class="standings-error">@ViewBag.Error</div>
+            }
+            else if (Model == null || !Model.Any())
+            {
+                <div class="standings-empty">
+                    Henüz puan durumu verisi bulunamadı.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="standings-table">
+                        <thead>
+                            <tr>
+                                <th>Sıra</th>
+                                <th style="text-align:left">Takım</th>
+                                <th>O</th>
+                                <th>G</th>
+                                <th>B</th>
+                                <th>M</th>
+                                <th>AG</th>
+                                <th>YG</th>
+                                <th>AV</th>
+                                <th>P</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var team in Model.OrderBy(x => x.Position))
+                            {
+                                <tr>
+                                    <td class="position">@team.Position</td>
+                                    <td class="team-cell">
+                                        <div class="team-info">
+                                            @if (!string.IsNullOrWhiteSpace(team.LogoUrl))
+                                            {
+                                                <img class="team-logo"
+                                                     src="@team.LogoUrl"
+                                                     alt="@team.TeamName" />
+                                            }
+                                            <a class="team-detail-link" href="/Home/TeamDetails?id=@team.TeamId">@team.TeamName</a>
+                                        </div>
+                                    </td>
+                                    <td>@team.Played</td>
+                                    <td>@team.Won</td>
+                                    <td>@team.Drawn</td>
+                                    <td>@team.Lost</td>
+                                    <td>@team.GoalsFor</td>
+                                    <td>@team.GoalsAgainst</td>
+                                    <td class="@(team.GoalDifference > 0 ? "positive" : team.GoalDifference < 0 ? "negative" : "")">
+                                        @(team.GoalDifference > 0 ? "+" : "")@team.GoalDifference
+                                    </td>
+                                    <td class="points">@team.Points</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </section>
+    </div>
+</body>
+</html>

@@ -1,0 +1,1020 @@
+@model List<SerieA.WebUI.Models.StandingViewModel>
+
+@{
+    ViewData["Title"] = "Serie A Puan Durumu";
+    Layout = "_Layout";
+    ViewData["BodyClass"] = "standings-body";
+
+    var standings = Model?.OrderBy(x => x.Position).ToList() ?? new List<SerieA.WebUI.Models.StandingViewModel>();
+    var leader = standings.FirstOrDefault();
+    var topScoringTeam = standings.OrderByDescending(x => x.GoalsFor).FirstOrDefault();
+    var bestDefense = standings.OrderBy(x => x.GoalsAgainst).FirstOrDefault();
+    var relegationStart = standings.Count >= 3 ? standings.OrderByDescending(x => x.Position).Skip(2).FirstOrDefault() : standings.LastOrDefault();
+    var maxPoints = Math.Max(standings.Select(x => x.Points).DefaultIfEmpty(0).Max(), 1);
+    var minPoints = standings.Select(x => x.Points).DefaultIfEmpty(0).Min();
+    var pointRange = Math.Max(maxPoints - minPoints, 1);
+}
+
+@section Styles {
+    <style>
+        :root {
+            --page: #071121;
+            --panel: #101d38;
+            --panel-2: #0b1730;
+            --line: #263d65;
+            --muted: #8da5cc;
+            --text: #eaf0ff;
+            --blue: #4387ff;
+            --green: #25d6a2;
+            --red: #ff4d70;
+            --gold: #f7bd4b;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body.standings-body {
+            background: radial-gradient(ellipse at 50% -25%, #14284b 0, var(--page) 58%);
+            color: var(--text);
+            font-family: Inter, "Segoe UI", Arial, sans-serif;
+        }
+
+        a {
+            color: inherit;
+        }
+
+        .site-nav {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 14px 28px;
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            border-bottom: 1px solid rgba(87,119,172,.22);
+        }
+
+        .site-nav__brand {
+            color: #f4f7ff;
+            font-size: 19px;
+            font-weight: 900;
+            text-decoration: none;
+            white-space: nowrap;
+            letter-spacing: .3px;
+        }
+
+        .site-nav__links {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .site-nav__link {
+            display: inline-flex;
+            align-items: center;
+            padding: 11px 14px;
+            border: 1px solid transparent;
+            border-radius: 10px;
+            color: #c5d5f5;
+            font-size: 14px;
+            font-weight: 700;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: .2s ease;
+        }
+
+            .site-nav__link:hover, .site-nav__link--active {
+                color: #fff;
+                background: #14294b;
+                border-color: #294a7c;
+            }
+
+        .standings-page {
+            max-width: 1440px;
+            margin: 24px auto 48px;
+            padding: 0 28px;
+        }
+
+        .panel {
+            background: linear-gradient(145deg, rgba(16,29,56,.98), rgba(10,23,46,.98));
+            border: 1px solid var(--line);
+            border-radius: 17px;
+            overflow: hidden;
+            box-shadow: 0 12px 35px rgba(0,0,0,.12);
+        }
+
+        .hero {
+            position: relative;
+            padding: 26px 28px 22px;
+            margin-bottom: 14px;
+            background: repeating-linear-gradient(90deg, rgba(255,255,255,.035) 0, rgba(255,255,255,.035) 44px, transparent 44px, transparent 88px), linear-gradient(120deg,#14284c,#0b1730 80%);
+            border-top: 3px solid var(--blue);
+        }
+
+        .hero-top {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 24px;
+        }
+
+        .kicker {
+            color: #8daeff;
+            font-size: 12px;
+            letter-spacing: .7px;
+        }
+
+        .hero h1 {
+            font-size: clamp(30px,4vw,44px);
+            line-height: 1.08;
+            margin: 8px 0 9px;
+            font-weight: 900;
+            letter-spacing: -.8px;
+        }
+
+        .hero p {
+            max-width: 540px;
+            color: #9fb5dc;
+            font-size: 13px;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .season-meta {
+            display: flex;
+            gap: 9px;
+            flex-shrink: 0;
+        }
+
+        .meta-box {
+            min-width: 82px;
+            padding: 10px 13px;
+            border-radius: 10px;
+            border: 1px solid #263d65;
+            background: rgba(7,17,33,.42);
+        }
+
+        .meta-label {
+            color: #8da5cc;
+            font-size: 10px;
+            margin-bottom: 4px;
+        }
+
+        .meta-value {
+            color: #f2f6ff;
+            font-weight: 850;
+            font-size: 17px;
+        }
+
+        .distribution {
+            margin-top: 24px;
+        }
+
+        .distribution-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            color: #dce7ff;
+            font-size: 12px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+            .distribution-heading small {
+                color: #6f85ab;
+                font-weight: 500;
+            }
+
+        .distribution-track {
+            height: 64px;
+            position: relative;
+            border-bottom: 1px solid #31496f;
+            margin: 0 12px;
+        }
+
+            .distribution-track:before {
+                content: "";
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                height: 1px;
+                background: linear-gradient(90deg,var(--red),#5e6c8c 45%,var(--blue));
+            }
+
+        .point-marker {
+            position: absolute;
+            bottom: 7px;
+            transform: translateX(-50%);
+            width: 29px;
+            height: 29px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #14284a;
+            border-radius: 50%;
+            background: #0c1b34;
+            box-shadow: 0 0 0 1px #3b5680;
+        }
+
+            .point-marker img {
+                width: 20px;
+                height: 20px;
+                object-fit: contain;
+            }
+
+            .point-marker span {
+                font-size: 8px;
+                font-weight: 900;
+                color: white;
+            }
+
+        .point-tick {
+            position: absolute;
+            bottom: -18px;
+            transform: translateX(-50%);
+            color: #7185a8;
+            font-size: 9px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4,minmax(0,1fr));
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .summary-card {
+            min-height: 91px;
+            padding: 15px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+        }
+
+            .summary-card:before {
+                content: "";
+                position: absolute;
+                top: 12px;
+                bottom: 12px;
+                left: 0;
+                width: 3px;
+                border-radius: 0 4px 4px 0;
+                background: var(--accent,var(--blue));
+            }
+
+        .summary-icon {
+            width: 39px;
+            height: 39px;
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            border-radius: 11px;
+            background: color-mix(in srgb, var(--accent,var(--blue)) 15%, transparent);
+            color: var(--accent,var(--blue));
+            font-size: 18px;
+        }
+
+        .summary-label {
+            color: #8da5cc;
+            font-size: 11px;
+            margin-bottom: 5px;
+        }
+
+        .summary-team {
+            font-weight: 800;
+            font-size: 13px;
+        }
+
+        .summary-value {
+            margin-left: auto;
+            text-align: right;
+            font-size: 25px;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+
+            .summary-value small {
+                display: block;
+                font-size: 10px;
+                font-weight: 600;
+                color: #8da5cc;
+            }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: minmax(0,1.85fr) minmax(260px,.75fr);
+            align-items: start;
+            gap: 14px;
+        }
+
+        .table-heading {
+            padding: 16px 18px;
+            border-bottom: 1px solid var(--line);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+            .table-heading h2 {
+                font-size: 16px;
+                margin: 0;
+                font-weight: 850;
+            }
+
+        .table-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .zone-filter {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .zone-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 11px;
+            border: 1px solid #263d65;
+            border-radius: 999px;
+            background: transparent;
+            color: #9fb5dc;
+            font: inherit;
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: background .15s ease, border-color .15s ease, color .15s ease;
+        }
+
+            .zone-chip::before {
+                content: "";
+                width: 7px;
+                height: 7px;
+                border-radius: 50%;
+                background: var(--chip-color, #8da5cc);
+            }
+
+        .zone-chip--all::before {
+            display: none;
+        }
+
+        .zone-chip--ucl {
+            --chip-color: var(--blue);
+        }
+
+        .zone-chip--europe {
+            --chip-color: var(--green);
+        }
+
+        .zone-chip--rel {
+            --chip-color: var(--red);
+        }
+
+        .zone-chip:hover,
+        .zone-chip[aria-pressed="true"] {
+            color: #fff;
+            border-color: var(--blue);
+            background: rgba(67,135,255,.14);
+        }
+
+        .zone-chip:focus-visible {
+            outline: 2px solid #8db7ff;
+            outline-offset: 2px;
+        }
+
+        .refresh-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 12px;
+            border: 1px solid #294779;
+            border-radius: 9px;
+            background: #122544;
+            color: #8db7ff;
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: .2s ease;
+        }
+
+            .refresh-btn:hover {
+                background: #2455a4;
+                border-color: var(--blue);
+                color: white;
+            }
+
+        .search-box {
+            width: 145px;
+            min-width: 0;
+            padding: 9px 11px;
+            border-radius: 9px;
+            border: 1px solid #263d65;
+            outline: none;
+            background: #0a162c;
+            color: var(--text);
+            font-size: 12px;
+        }
+
+            .search-box:focus {
+                border-color: var(--blue);
+            }
+
+        .zone-legend {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 11px 17px;
+            border-bottom: 1px solid #213656;
+            color: #8da5cc;
+            font-size: 10px;
+        }
+
+        .legend-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--blue);
+        }
+
+            .legend-dot.europe {
+                background: var(--green);
+            }
+
+            .legend-dot.relegation {
+                background: var(--red);
+            }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .standings-table {
+            width: 100%;
+            min-width: 720px;
+            border-collapse: collapse;
+            color: var(--text);
+        }
+
+            .standings-table thead {
+                background: rgba(5,14,29,.56);
+            }
+
+            .standings-table th {
+                padding: 12px 8px;
+                color: #8198bf;
+                font-size: 10px;
+                font-weight: 800;
+                text-align: center;
+                white-space: nowrap;
+                border-bottom: 1px solid var(--line);
+            }
+
+            .standings-table td {
+                padding: 10px 8px;
+                text-align: center;
+                font-size: 12px;
+                border-bottom: 1px solid rgba(38,61,101,.68);
+                white-space: nowrap;
+            }
+
+            .standings-table tbody tr {
+                position: relative;
+                transition: background .15s ease;
+            }
+
+                .standings-table tbody tr:hover {
+                    background: rgba(66,133,244,.09);
+                }
+
+                .standings-table tbody tr:last-child td {
+                    border-bottom: 0;
+                }
+
+                .standings-table tbody tr.zone-champions td:first-child {
+                    box-shadow: inset 3px 0 var(--blue);
+                }
+
+                .standings-table tbody tr.zone-europe td:first-child {
+                    box-shadow: inset 3px 0 var(--green);
+                }
+
+                .standings-table tbody tr.zone-relegation td:first-child {
+                    box-shadow: inset 3px 0 var(--red);
+                }
+
+        .position {
+            color: #d6e3ff;
+            font-weight: 800;
+            width: 35px;
+        }
+
+        .team-cell {
+            text-align: left !important;
+            min-width: 155px;
+        }
+
+        .team-info {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            font-weight: 700;
+        }
+
+        .team-detail-link {
+            color: #eaf0ff;
+            text-decoration: none;
+            font-weight: 750;
+        }
+
+            .team-detail-link:hover {
+                color: #8db7ff;
+                text-decoration: underline;
+                text-underline-offset: 3px;
+            }
+
+        .team-logo {
+            width: 25px;
+            height: 25px;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+
+        .points {
+            font-size: 17px !important;
+            font-weight: 900;
+            background: rgba(4,14,29,.26);
+        }
+
+        .positive {
+            color: var(--green);
+            font-weight: 800;
+        }
+
+        .negative {
+            color: #ff667e;
+            font-weight: 800;
+        }
+
+        .standings-error, .standings-empty {
+            color: #9fb5dc;
+            padding: 24px;
+        }
+
+        .side-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .side-heading {
+            margin: 0;
+            padding: 15px 16px;
+            font-size: 14px;
+            font-weight: 850;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .side-body {
+            padding: 14px 16px;
+        }
+
+        .zone-explain {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(38,61,101,.6);
+        }
+
+            .zone-explain:last-child {
+                border-bottom: 0;
+                padding-bottom: 0;
+            }
+
+        .zone-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .zone-line {
+            width: 3px;
+            height: 23px;
+            border-radius: 3px;
+            background: var(--blue);
+        }
+
+            .zone-line.europe {
+                background: var(--green);
+            }
+
+            .zone-line.relegation {
+                background: var(--red);
+            }
+
+        .zone-description {
+            color: #7f95ba;
+            font-size: 10px;
+            margin: 4px 0 0 11px;
+        }
+
+        .mini-team {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            margin: 12px 0;
+        }
+
+            .mini-team:last-child {
+                margin-bottom: 0;
+            }
+
+        .mini-team-logo {
+            width: 25px;
+            height: 25px;
+            object-fit: contain;
+        }
+
+        .mini-team-name {
+            flex: 1;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .mini-team-value {
+            font-size: 14px;
+            font-weight: 900;
+        }
+
+        .mini-track {
+            height: 5px;
+            margin-top: 6px;
+            border-radius: 99px;
+            overflow: hidden;
+            background: #1b2b49;
+        }
+
+        .mini-track-fill {
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg,#2164f3,#38d9b0);
+        }
+
+        .side-note {
+            color: #8499bd;
+            font-size: 11px;
+            line-height: 1.65;
+        }
+
+        .table-footer {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 11px 16px;
+            border-top: 1px solid var(--line);
+            color: #7185a8;
+            font-size: 10px;
+        }
+
+        @@media (max-width: 1000px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .side-stack {
+                display: grid;
+                grid-template-columns: repeat(2,minmax(0,1fr));
+            }
+        }
+
+        @@media (max-width: 680px) {
+            .site-nav {
+                padding: 12px 14px;
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .site-nav__links {
+                width: 100%;
+                overflow-x: auto;
+            }
+
+            .site-nav__link {
+                padding: 9px 10px;
+                font-size: 12px;
+            }
+
+            .standings-page {
+                margin-top: 14px;
+                padding: 0 12px;
+            }
+
+            .hero {
+                padding: 20px 17px;
+            }
+
+            .hero-top {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .season-meta {
+                width: 100%;
+            }
+
+            .meta-box {
+                flex: 1;
+                min-width: 0;
+            }
+
+            .summary-grid {
+                grid-template-columns: repeat(2,minmax(0,1fr));
+            }
+
+            .summary-card {
+                padding: 12px 11px;
+                gap: 8px;
+                min-height: 80px;
+            }
+
+            .summary-icon {
+                width: 31px;
+                height: 31px;
+                font-size: 15px;
+            }
+
+            .summary-value {
+                font-size: 20px;
+            }
+
+            .table-heading {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .table-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .zone-filter {
+                width: 100%;
+            }
+
+            .zone-chip {
+                padding: 7px 9px;
+                font-size: 10px;
+            }
+
+            .search-box {
+                flex: 1;
+                width: auto;
+            }
+
+            .side-stack {
+                grid-template-columns: 1fr;
+            }
+
+            .distribution-track {
+                margin: 0 4px;
+            }
+        }
+    </style>
+}
+
+
+<main class="standings-page">
+    <section class="panel hero">
+        <div class="hero-top">
+            <div>
+                <div class="kicker">🇮🇹 İTALYA · SERIE A</div>
+                <h1>Serie A Puan Durumu</h1>
+                <p>Güncel lig sıralaması, puan yarışı ve takımların sezon performansı.</p>
+            </div>
+            <div class="season-meta">
+                <div class="meta-box"><div class="meta-label">Sezon</div><div class="meta-value">2026/27</div></div>
+                <div class="meta-box"><div class="meta-label">Takım</div><div class="meta-value">@standings.Count</div></div>
+                <div class="meta-box"><div class="meta-label">Tamamlanan maç</div><div class="meta-value">@(standings.Sum(x => x.Played) / 2)</div></div>
+            </div>
+        </div>
+        @if (standings.Any())
+        {
+            <div class="distribution">
+                <div class="distribution-heading"><span>Puan dağılımı</span><small>Takım logosunun üzerine gelerek puanı gör</small></div>
+                <div class="distribution-track">
+                    @foreach (var team in standings)
+                    {
+                        var left = 2.0 + ((team.Points - minPoints) / (double)pointRange) * 96.0;
+                        var topOffset = team.Position % 3 == 0 ? 27 : team.Position % 3 == 1 ? 4 : 15;
+                        <div class="point-marker" title="@team.TeamName — @team.Points puan" style="left:@(left.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture))%; bottom:@(topOffset)px;">
+                            @if (!string.IsNullOrWhiteSpace(team.LogoUrl))
+                            {
+                                <img src="@team.LogoUrl" alt="@team.TeamName" />
+                            }
+                            else
+                            {
+
+                                <span>@team.TeamName.Substring(0, 1)</span>
+                            }
+                        </div>
+                    }
+                    @foreach (var tick in new[] { 0, 25, 50, 75, 100 })
+                    {
+                        <span class="point-tick" style="left:@tick%">@(Math.Round(minPoints + (pointRange * tick / 100.0)))</span>
+                    }
+                </div>
+            </div>
+        }
+    </section>
+
+    @if (!string.IsNullOrWhiteSpace(ViewBag.Error as string))
+    {
+        <section class="panel standings-error">@ViewBag.Error</section>
+    }
+    else if (!standings.Any())
+    {
+        <section class="panel standings-empty">Henüz puan durumu verisi bulunamadı.</section>
+    }
+    else
+    {
+        <section class="summary-grid">
+            <article class="panel summary-card" style="--accent:#4387ff">
+                <div class="summary-icon">🏆</div>
+                <div><div class="summary-label">Lider</div><div class="summary-team">@leader!.TeamName</div></div>
+                <div class="summary-value">@leader.Points<small>puan</small></div>
+            </article>
+            <article class="panel summary-card" style="--accent:#25d6a2">
+                <div class="summary-icon">⚽</div>
+                <div><div class="summary-label">En çok gol atan</div><div class="summary-team">@topScoringTeam!.TeamName</div></div>
+                <div class="summary-value">@topScoringTeam.GoalsFor<small>gol</small></div>
+            </article>
+            <article class="panel summary-card" style="--accent:#f7bd4b">
+                <div class="summary-icon">🛡</div>
+                <div><div class="summary-label">En az gol yiyen</div><div class="summary-team">@bestDefense!.TeamName</div></div>
+                <div class="summary-value">@bestDefense.GoalsAgainst<small>gol</small></div>
+            </article>
+            <article class="panel summary-card" style="--accent:#ff4d70">
+                <div class="summary-icon">↘</div>
+                <div><div class="summary-label">Düşme hattı başlangıcı</div><div class="summary-team">@(relegationStart?.TeamName ?? "-")</div></div>
+                <div class="summary-value">@(relegationStart?.Position.ToString() ?? "-")<small>sıra</small></div>
+            </article>
+        </section>
+
+        <div class="content-grid">
+            <section class="panel">
+                <div class="table-heading">
+                    <h2>Genel sıralama</h2>
+                    <div class="table-actions">
+                        <div class="zone-filter" role="group" aria-label="Bölgeye göre filtrele">
+                            <button type="button" class="zone-chip zone-chip--all" data-zone-filter="all" aria-pressed="true">Tümü</button>
+                            <button type="button" class="zone-chip zone-chip--ucl" data-zone-filter="ucl" aria-pressed="false">Şampiyonlar Ligi</button>
+                            <button type="button" class="zone-chip zone-chip--europe" data-zone-filter="europe" aria-pressed="false">Avrupa</button>
+                            <button type="button" class="zone-chip zone-chip--rel" data-zone-filter="rel" aria-pressed="false">Düşme hattı</button>
+                        </div>
+                        <input id="teamSearch" class="search-box" type="search" placeholder="⌕ Takım ara..." aria-label="Takım ara" autocomplete="off" />
+                        <a href="/Home/Standings" class="refresh-btn"><span aria-hidden="true">↻</span> Yenile</a>
+                    </div>
+                </div>
+                <div class="zone-legend">
+                    <span class="legend-item"><i class="legend-dot"></i> Üst sıra (1–4)</span>
+                    <span class="legend-item"><i class="legend-dot europe"></i> Avrupa hattı (5–6)</span>
+                    <span class="legend-item"><i class="legend-dot relegation"></i> Düşme hattı (18–20)</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="standings-table" id="standingsTable">
+                        <thead><tr><th>#</th><th style="text-align:left">Takım</th><th>O</th><th>G</th><th>B</th><th>M</th><th>AG</th><th>YG</th><th>AV</th><th>P</th></tr></thead>
+                        <tbody>
+                            @foreach (var team in standings)
+                            {
+                                var zoneClass = team.Position <= 4 ? "zone-champions" : team.Position <= 6 ? "zone-europe" : team.Position >= 18 ? "zone-relegation" : "";
+                                var zoneKey = team.Position <= 4 ? "ucl" : team.Position <= 6 ? "europe" : team.Position >= 18 ? "rel" : "mid";
+                                <tr class="@zoneClass" data-team="@team.TeamName.ToLowerInvariant()" data-team-name="@team.TeamName" data-zone="@zoneKey">
+                                    <td class="position">@team.Position</td>
+                                    <td class="team-cell">
+                                        <div class="team-info">
+                                            @if (!string.IsNullOrWhiteSpace(team.LogoUrl))
+                                            {
+                                                <img class="team-logo" src="@team.LogoUrl" alt="@team.TeamName" />
+                                            }
+                                            <a class="team-detail-link" href="/Home/TeamDetails?id=@team.TeamId">@team.TeamName</a>
+                                        </div>
+                                    </td>
+                                    <td>@team.Played</td>
+                                    <td>@team.Won</td>
+                                    <td>@team.Drawn</td>
+                                    <td>@team.Lost</td>
+                                    <td>@team.GoalsFor</td>
+                                    <td>@team.GoalsAgainst</td>
+                                    <td class="@(team.GoalDifference > 0 ? "positive" : team.GoalDifference < 0 ? "negative" : "")">@(team.GoalDifference > 0 ? "+" : "")@team.GoalDifference</td>
+                                    <td class="points">@team.Points</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="table-footer"><span>Gösterilen takım: <strong id="visibleCount">@standings.Count</strong> / @standings.Count</span><span>Puan durumu canlı verilerden hesaplanır.</span></div>
+            </section>
+
+            <aside class="side-stack">
+                <section class="panel">
+                    <h3 class="side-heading">Renklerin anlamı</h3>
+                    <div class="side-body">
+                        <div class="zone-explain"><div class="zone-title"><i class="zone-line"></i> Üst sıra</div><div class="zone-description">1–4. sıra</div></div>
+                        <div class="zone-explain"><div class="zone-title"><i class="zone-line europe"></i> Avrupa hattı</div><div class="zone-description">5–6. sıra</div></div>
+                        <div class="zone-explain"><div class="zone-title"><i class="zone-line relegation"></i> Düşme hattı</div><div class="zone-description">18–20. sıra</div></div>
+                        <p class="side-note" style="margin:13px 0 0">Renkler sıralamayı görsel olarak ayırt etmek içindir; resmi turnuva kuralları sezon düzenlemelerine göre değişebilir.</p>
+                    </div>
+                </section>
+                <section class="panel">
+                    <h3 class="side-heading">Formda olanlar</h3>
+                    <div class="side-body">
+                        <p class="side-note" style="margin:0 0 12px">Sezon genelinde puan toplayan takımlar</p>
+                        @foreach (var team in standings.OrderByDescending(x => x.Points).ThenByDescending(x => x.GoalDifference).Take(3))
+                        {
+                            var bar = team.Points / (double)maxPoints * 100;
+                            <div class="mini-team">
+                                @if (!string.IsNullOrWhiteSpace(team.LogoUrl))
+                                {
+                                    <img class="mini-team-logo" src="@team.LogoUrl" alt="" />
+                                }
+                                <div class="mini-team-name">@team.TeamName<div class="mini-track"><div class="mini-track-fill" style="width:@(bar.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture))%"></div></div></div>
+                                <div class="mini-team-value">@team.Points</div>
+                            </div>
+                        }
+                    </div>
+                </section>
+                <section class="panel">
+                    <h3 class="side-heading">Sıralama notu</h3>
+                    <div class="side-body"><p class="side-note" style="margin:0">Takımlar puanlarına göre sıralanır. Puan eşitliğinde sıralama API tarafından belirlenen averaj ve eşitlik kurallarına göre korunur. Maç sonuçları güncellendiğinde bu ekran da yenilenir.</p></div>
+                </section>
+            </aside>
+        </div>
+    }
+</main>
+
+@section Scripts {
+    <script>
+        (() => {
+                    const input = document.getElementById('teamSearch');
+                    const rows = Array.from(document.querySelectorAll('#standingsTable tbody tr[data-team]'));
+                    const count = document.getElementById('visibleCount');
+                    const chips = Array.from(document.querySelectorAll('[data-zone-filter]'));
+                    let activeZone = 'all';
+
+                    const normalize = value => (value || '')
+                        .toLocaleLowerCase('tr-TR')
+                        .normalize('NFD')
+                        .replace(/[\u0300-\u036f]/g, '');
+
+                    function applyFilters() {
+                        const query = normalize(input ? input.value.trim() : '');
+                        let visible = 0;
+
+                        rows.forEach(row => {
+                            const zoneMatch = activeZone === 'all' || row.dataset.zone === activeZone;
+                            const teamName = normalize(row.dataset.teamName || row.dataset.team || '');
+                            const textMatch = !query || teamName.includes(query);
+                            const show = zoneMatch && textMatch;
+                            row.hidden = !show;
+                            if (show) visible++;
+                        });
+
+                        if (count) count.textContent = String(visible);
+                    }
+
+                    chips.forEach(chip => {
+                        chip.addEventListener('click', () => {
+                            activeZone = chip.dataset.zoneFilter;
+                            chips.forEach(item => item.setAttribute(
+                                'aria-pressed', String(item === chip)
+                            ));
+                            applyFilters();
+                        });
+                    });
+
+                    if (input) input.addEventListener('input', applyFilters);
+                    applyFilters();
+                })();
+    </script>
+}

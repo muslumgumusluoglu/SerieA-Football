@@ -1,0 +1,567 @@
+/* Temel sayfa ayarları */
+html {
+    font-size: 14px;
+    position: relative;
+    min-height: 100%;
+    background: #070f20;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+/* Shared public layout */
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: #070f20;
+    color: #eaf0ff;
+}
+
+.public-navbar {
+    background: #0c1830;
+    border-bottom: 1px solid #24395f;
+    padding: 14px 0;
+}
+
+    .public-navbar .navbar-brand {
+        color: #eaf0ff;
+        font-weight: 800;
+        letter-spacing: .5px;
+    }
+
+    .public-navbar .nav-link {
+        color: #a9bee5;
+        margin-left: 12px;
+    }
+
+        .public-navbar .nav-link:hover {
+            color: #4388ff;
+        }
+
+.public-main {
+    width: 100%;
+    min-height: calc(100vh - 130px);
+}
+
+.public-footer {
+    border-top: 1px solid #24395f;
+    padding: 18px 0;
+    color: #8da5d0;
+    text-align: center;
+    font-size: 13px;
+}
+
+@media (max-width: 576px) {
+    .public-navbar .nav-link {
+        margin-left: 0;
+    }
+}
+
+/* Team details page */
+.team-details-page {
+    width: min(1180px, 100%);
+    margin: 0 auto;
+    padding: 28px 24px 44px;
+}
+
+    .team-details-page .breadcrumb {
+        margin-bottom: 20px;
+        color: #8da5d0;
+        font-size: 13px;
+    }
+
+        .team-details-page .breadcrumb a {
+            color: #a9bee5;
+            text-decoration: none;
+        }
+
+            .team-details-page .breadcrumb a:hover {
+                color: #4388ff;
+            }
+
+    .team-details-page .team-hero {
+        display: flex;
+        align-items: center;
+        gap: 26px;
+        padding: 30px;
+        margin-bottom: 26px;
+        border: 1px solid #29446e;
+        border-radius: 16px;
+        background: linear-gradient(120deg, #0c1830, #173660);
+        color: #eaf0ff;
+    }
+
+    .team-details-page .team-logo-box {
+        display: flex;
+        flex: 0 0 100px;
+        align-items: center;
+        justify-content: center;
+        width: 100px;
+        height: 100px;
+        padding: 12px;
+        border-radius: 14px;
+        background: #fff;
+    }
+
+    .team-details-page .team-logo {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    .team-details-page .team-initial {
+        color: #102b52;
+        font-size: 34px;
+        font-weight: 800;
+    }
+
+    .team-details-page .team-info {
+        min-width: 0;
+    }
+
+    .team-details-page .eyebrow {
+        margin: 0 0 5px;
+        color: #8fbaff;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1.4px;
+        text-transform: uppercase;
+    }
+
+    .team-details-page .team-info h1 {
+        margin: 0 0 10px;
+        color: #fff;
+        font-size: clamp(26px, 4vw, 36px);
+        font-weight: 800;
+    }
+
+    .team-details-page .team-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 20px;
+        color: #c6d6ee;
+        font-size: 14px;
+    }
+
+    .team-details-page .section-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 28px 0 14px;
+    }
+
+        .team-details-page .section-heading h2 {
+            margin: 0;
+            color: #eaf0ff;
+            font-size: 21px;
+            font-weight: 700;
+        }
+
+        .team-details-page .section-heading p {
+            margin: 4px 0 0;
+            color: #8da5d0;
+            font-size: 13px;
+        }
+
+    .team-details-page .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 28px;
+    }
+
+    .team-details-page .stat-card {
+        padding: 17px;
+        border: 1px solid #24395f;
+        border-radius: 12px;
+        background: #0c1830;
+    }
+
+    .team-details-page .stat-label {
+        display: block;
+        margin-bottom: 7px;
+        color: #9bb0d2;
+        font-size: 12px;
+    }
+
+    .team-details-page .stat-value {
+        display: block;
+        color: #fff;
+        font-size: 25px;
+        font-weight: 800;
+    }
+
+        .team-details-page .stat-value.green {
+            color: #43d6a0;
+        }
+
+        .team-details-page .stat-value.red {
+            color: #ff7885;
+        }
+
+    .team-details-page .matches-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .team-details-page .match-card {
+        display: grid;
+        grid-template-columns: 100px minmax(0, 1fr) 125px;
+        align-items: center;
+        gap: 16px;
+        padding: 18px;
+        border: 1px solid #24395f;
+        border-radius: 12px;
+        background: #0c1830;
+    }
+
+    .team-details-page .match-week {
+        color: #8da5d0;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .team-details-page .match-date {
+        margin-top: 4px;
+        color: #eaf0ff;
+        font-size: 13px;
+    }
+
+    .team-details-page .match-teams {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+        align-items: center;
+        gap: 12px;
+    }
+
+    .team-details-page .team-side {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        min-width: 0;
+    }
+
+        .team-details-page .team-side.away {
+            justify-content: flex-end;
+            text-align: right;
+        }
+
+    .team-details-page .small-logo, .team-details-page .small-initial {
+        width: 32px;
+        height: 32px;
+        flex: 0 0 32px;
+        object-fit: contain;
+    }
+
+    .team-details-page .small-initial {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: #1b2d4b;
+        color: #eaf0ff;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .team-details-page .team-name {
+        color: #eaf0ff;
+        font-size: 13px;
+        font-weight: 700;
+        overflow-wrap: anywhere;
+    }
+
+    .team-details-page .score {
+        min-width: 55px;
+        color: #fff;
+        font-size: 19px;
+        font-weight: 800;
+        text-align: center;
+        white-space: nowrap;
+    }
+
+        .team-details-page .score.upcoming {
+            color: #8da5d0;
+            font-size: 14px;
+        }
+
+    .team-details-page .match-status {
+        display: flex;
+        align-items: flex-end;
+        flex-direction: column;
+        gap: 7px;
+    }
+
+    .team-details-page .status-badge {
+        padding: 4px 9px;
+        border-radius: 20px;
+        background: #1b2d4b;
+        color: #b9c9e2;
+        font-size: 11px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+        .team-details-page .status-badge.finished {
+            background: #123c36;
+            color: #65e0b3;
+        }
+
+        .team-details-page .status-badge.live {
+            background: #48242e;
+            color: #ff9ca6;
+        }
+
+    .team-details-page .match-detail-link {
+        color: #69aaff;
+        font-size: 12px;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+        .team-details-page .match-detail-link:hover {
+            text-decoration: underline;
+        }
+
+    .team-details-page .empty-state {
+        padding: 35px 20px;
+        border: 1px dashed #385176;
+        border-radius: 12px;
+        color: #9bb0d2;
+        text-align: center;
+    }
+
+        .team-details-page .empty-state strong {
+            display: block;
+            margin-bottom: 6px;
+            color: #eaf0ff;
+        }
+
+    .team-details-page .back-link {
+        display: inline-block;
+        margin-top: 24px;
+        padding: 10px 14px;
+        border: 1px solid #385176;
+        border-radius: 8px;
+        color: #dbe7f7;
+        font-size: 13px;
+        text-decoration: none;
+    }
+
+        .team-details-page .back-link:hover {
+            background: #142746;
+        }
+
+@media (max-width: 850px) {
+    .team-details-page .stats-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .team-details-page .match-card {
+        grid-template-columns: 78px minmax(0, 1fr);
+        gap: 12px;
+    }
+
+    .team-details-page .match-status {
+        grid-column: 2;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+}
+
+@media (max-width: 600px) {
+    .team-details-page {
+        padding: 20px 14px 32px;
+    }
+
+        .team-details-page .team-hero {
+            align-items: flex-start;
+            flex-direction: column;
+            gap: 18px;
+            padding: 22px;
+        }
+
+        .team-details-page .team-logo-box {
+            flex-basis: 82px;
+            width: 82px;
+            height: 82px;
+        }
+
+        .team-details-page .team-meta {
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .team-details-page .stats-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 9px;
+        }
+
+        .team-details-page .stat-card {
+            padding: 14px;
+        }
+
+        .team-details-page .stat-value {
+            font-size: 22px;
+        }
+
+        .team-details-page .match-card {
+            grid-template-columns: 1fr;
+            padding: 15px;
+            gap: 12px;
+        }
+
+        .team-details-page .match-teams {
+            gap: 5px;
+        }
+
+        .team-details-page .team-side, .team-details-page .team-side.away {
+            flex-direction: column;
+            gap: 5px;
+            text-align: center;
+        }
+
+        .team-details-page .team-name {
+            font-size: 12px;
+        }
+
+        .team-details-page .match-status {
+            grid-column: auto;
+        }
+}
+
+
+
+/* Son 5 maç formu */
+.form-section {
+    margin-bottom: 28px;
+}
+
+.form-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 700px;
+}
+
+.form-match {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    background: #0d1930;
+    border: 1px solid #263e61;
+    border-radius: 12px;
+}
+
+.form-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    font-size: 17px;
+    font-weight: 800;
+}
+
+.form-win {
+    color: #35d39a;
+    background: rgba(53, 211, 154, 0.14);
+}
+
+.form-draw {
+    color: #ffc857;
+    background: rgba(255, 200, 87, 0.14);
+}
+
+.form-loss {
+    color: #ff647c;
+    background: rgba(255, 100, 124, 0.14);
+}
+
+.form-match-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex: 1;
+    min-width: 0;
+}
+
+    .form-match-info strong {
+        color: #f5f7ff;
+        font-size: 14px;
+    }
+
+    .form-match-info span {
+        color: #a9bddb;
+        font-size: 12px;
+    }
+
+.form-result-text {
+    color: #b7c9e5;
+    font-size: 12px;
+}
+
+@media (max-width: 600px) {
+    .form-match {
+        gap: 10px;
+        padding: 12px;
+    }
+
+    .form-result-text {
+        display: none;
+    }
+}
+
+
+
+/* Admin puan tablosu takım detay bağlantısı */
+.team-detail-link,
+.team-detail-link:visited {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: inherit;
+    text-decoration: none;
+}
+
+.team-detail-link:hover,
+.team-detail-link:focus-visible {
+color: #2563eb;
+text-decoration: none;
+}
+
+.team-detail-link:focus-visible {
+outline: 2px solid #2563eb;
+outline-offset: 3px;
+border-radius: 4px;
+}
+
+/* Admin puan durumu takım bağlantısı */
+a.team-detail-link.standings-team-link,
+a.team-detail-link.standings-team-link:link,
+a.team-detail-link.standings-team-link:visited {
+    color: #263b58 !important;
+    text-decoration: none !important;
+}
+
+    a.team-detail-link.standings-team-link:hover,
+    a.team-detail-link.standings-team-link:focus {
+        color: #2563eb !important;
+        text-decoration: none !important;
+    }
+
+    a.team-detail-link.standings-team-link img {
+        border: 0;
+    }

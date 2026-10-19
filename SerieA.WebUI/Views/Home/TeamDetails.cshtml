@@ -1,0 +1,308 @@
+﻿@model SerieA.WebUI.Models.TeamDetailViewModel
+
+
+@{
+    ViewData["Title"] = $"{Model.Name} - Takım Detayları";
+
+    var matches = Model.Matches ?? new List<SerieA.WebUI.Models.TeamMatchViewModel>();
+
+    var lastFiveMatches = matches
+        .Where(m => m.Status == "Finished"
+                 && m.HomeScore.HasValue
+                 && m.AwayScore.HasValue)
+        .OrderByDescending(m => m.MatchDate)
+        .Take(5)
+        .ToList();
+}
+
+
+<div class="team-details-page">
+    <nav class="breadcrumb" aria-label="Sayfa yolu">
+        <a asp-controller="Home" asp-action="Index">Ana Sayfa</a>
+        <span> / </span>
+        <a asp-controller="Home" asp-action="Standings">Puan Durumu</a>
+        <span> / </span>
+        <strong>@Model.Name</strong>
+    </nav>
+
+    <section class="team-hero">
+        <div class="team-logo-box">
+            @if (!string.IsNullOrWhiteSpace(Model.LogoUrl))
+            {
+                <img class="team-logo"
+                     src="@Model.LogoUrl"
+                     alt="@Model.Name logosu"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                <div class="team-initial" style="display:none;">
+                    @Model.Name.Substring(0, 1).ToUpperInvariant()
+                </div>
+            }
+            else
+            {
+                <div class="team-initial">
+                    @Model.Name.Substring(0, 1).ToUpperInvariant()
+                </div>
+            }
+        </div>
+
+        <div class="team-info">
+            <p class="eyebrow">Serie A · Takım Profili</p>
+            <h1>@Model.Name</h1>
+
+            <div class="team-meta">
+                @if (!string.IsNullOrWhiteSpace(Model.City))
+                {
+                    <span>📍 @Model.City</span>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(Model.Stadium))
+                {
+                    <span>🏟️ @Model.Stadium</span>
+                }
+            </div>
+        </div>
+    </section>
+
+    <section aria-labelledby="team-stats-title">
+        <div class="section-heading">
+            <div>
+                <h2 id="team-stats-title">Takım İstatistikleri</h2>
+                <p>Lig puan durumu verilerine göre güncel istatistikler.</p>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-label">Lig Sırası</span>
+                <span class="stat-value">@(Model.Position > 0 ? Model.Position.ToString() : "-")</span>
+            </div>
+
+            <div class="stat-card">
+                <span class="stat-label">Puan</span>
+                <span class="stat-value green">@Model.Points</span>
+            </div>
+
+            <div class="stat-card">
+                <span class="stat-label">Oynanan Maç</span>
+                <span class="stat-value">@Model.Played</span>
+            </div>
+
+            <div class="stat-card">
+                <span class="stat-label">Galibiyet</span>
+                <span class="stat-value green">@Model.Won</span>
+            </div>
+
+            <div class="stat-card">
+                <span class="stat-label">Beraberlik</span>
+                <span class="stat-value">@Model.Drawn</span>
+            </div>
+
+            <div class="stat-card">
+                <span class="stat-label">Mağlubiyet</span>
+                <span class="stat-value red">@Model.Lost</span>
+            </div>
+
+            <div class="stat-card">
+                <span class="stat-label">Atılan Gol</span>
+                <span class="stat-value">@Model.GoalsFor</span>
+            </div>
+
+            <div class="stat-card">
+                <span class="stat-label">Yenilen Gol</span>
+                <span class="stat-value">@Model.GoalsAgainst</span>
+            </div>
+
+            <div class="stat-card">
+                <span class="stat-label">Averaj</span>
+                <span class="stat-value @(Model.GoalDifference > 0 ? "green" : Model.GoalDifference < 0 ? "red" : "")">
+                    @(Model.GoalDifference > 0 ? "+" : "")@Model.GoalDifference
+                </span>
+            </div>
+        </div>
+    </section>
+
+
+    <section class="form-section" aria-labelledby="team-form-title">
+        <div class="section-heading">
+            <div>
+                <h2 id="team-form-title">Son 5 Maç Formu</h2>
+                <p>Takımın son tamamlanmış maçlardaki performansı</p>
+            </div>
+        </div>
+
+        @if (lastFiveMatches.Any())
+        {
+            <div class="form-list">
+                @foreach (var match in lastFiveMatches)
+                {
+                    var isHome = match.HomeTeamId == Model.Id;
+
+                    var teamScore = isHome
+                    ? match.HomeScore!.Value
+                    : match.AwayScore!.Value;
+
+                    var opponentScore = isHome
+                    ? match.AwayScore!.Value
+                    : match.HomeScore!.Value;
+
+                    var opponentName = isHome
+                    ? match.AwayTeamName
+                    : match.HomeTeamName;
+
+                    var result = teamScore > opponentScore
+                    ? "G"
+                    : teamScore == opponentScore
+                    ? "B"
+                    : "M";
+
+                    var resultText = result == "G"
+                    ? "Galibiyet"
+                    : result == "B"
+                    ? "Beraberlik"
+                    : "Mağlubiyet";
+
+                    <div class="form-match">
+                        <span class="form-badge @(result == "G" ? "form-win" : result == "B" ? "form-draw" : "form-loss")"
+                              title="@resultText">
+                            @result
+                        </span>
+
+                        <div class="form-match-info">
+                            <strong>@opponentName</strong>
+                            <span>
+                                @match.MatchDate.ToString("dd.MM.yyyy")
+                                · @teamScore - @opponentScore
+                            </span>
+                        </div>
+
+                        <span class="form-result-text">@resultText</span>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                Henüz tamamlanmış maç bulunmuyor.
+            </div>
+        }
+    </section>
+
+
+    <section aria-labelledby="team-matches-title">
+        <div class="section-heading">
+            <div>
+                <h2 id="team-matches-title">Maç Fikstürü</h2>
+                <p>@Model.Name takımının oynadığı ve oynayacağı maçlar</p>
+            </div>
+        </div>
+
+        @if (matches.Any())
+        {
+            <div class="matches-list">
+                @foreach (var match in matches.OrderBy(m => m.MatchDate))
+                {
+                    var isFinished = match.Status == "Finished";
+                    var isLive = match.Status == "Live" || match.Status == "InProgress";
+
+                    <article class="match-card">
+                        <div>
+                            <div class="match-week">@match.Week. Hafta</div>
+                            <div class="match-date">
+                                @match.MatchDate.ToString("dd.MM.yyyy HH:mm")
+                            </div>
+                        </div>
+
+                        <div class="match-teams">
+                            <div class="team-side">
+                                @if (!string.IsNullOrWhiteSpace(match.HomeTeamLogoUrl))
+                                {
+                                    <img class="small-logo"
+                                         src="@match.HomeTeamLogoUrl"
+                                         alt="@match.HomeTeamName logosu"
+                                         loading="lazy" />
+                                }
+                                else
+                                {
+                                    <div class="small-initial">
+                                        @(string.IsNullOrWhiteSpace(match.HomeTeamName)
+                                                                    ? "?"
+                                                                    : match.HomeTeamName.Substring(0, 1).ToUpperInvariant())
+                        </div>
+                                                }
+
+                                <span class="team-name">@match.HomeTeamName</span>
+                            </div>
+
+                            <div class="score @(isFinished || isLive ? "" : "upcoming")">
+                                @if (match.HomeScore.HasValue && match.AwayScore.HasValue)
+                                {
+                                    <span>@match.HomeScore - @match.AwayScore</span>
+                                }
+                                else
+                                {
+                                    <span>VS</span>
+                                }
+                            </div>
+
+                            <div class="team-side away">
+                                <span class="team-name">@match.AwayTeamName</span>
+
+                                @if (!string.IsNullOrWhiteSpace(match.AwayTeamLogoUrl))
+                                {
+                                    <img class="small-logo"
+                                         src="@match.AwayTeamLogoUrl"
+                                         alt="@match.AwayTeamName logosu"
+                                         loading="lazy" />
+                                }
+                                else
+                                {
+                                    <div class="small-initial">
+                                        @(string.IsNullOrWhiteSpace(match.AwayTeamName)
+                                                                    ? "?"
+                                                                    : match.AwayTeamName.Substring(0, 1).ToUpperInvariant())
+                        </div>
+                                                }
+                            </div>
+                        </div>
+
+                        <div class="match-status">
+                            @if (isFinished)
+                            {
+                                <span class="status-badge finished">Tamamlandı</span>
+                            }
+                            else if (isLive)
+                            {
+                                <span class="status-badge live">Canlı</span>
+                            }
+                            else
+                            {
+                                <span class="status-badge">Başlamadı</span>
+                            }
+
+                            <a class="match-detail-link"
+                               asp-controller="Home"
+                               asp-action="MatchDetails"
+                               asp-route-id="@match.Id">
+                                Maç Detayı →
+                            </a>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <strong>Henüz maç bulunmuyor.</strong>
+                Bu takım için kayıtlı bir maç bulunamadı.
+            </div>
+        }
+    </section>
+
+    <a class="back-link"
+       asp-controller="Home"
+       asp-action="Standings">
+        ← Puan Durumuna Dön
+    </a>
+</div>

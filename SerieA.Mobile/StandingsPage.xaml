@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="SerieA.Mobile.StandingsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    BackgroundColor="#071226"
+    Shell.NavBarIsVisible="False">
+
+    <ScrollView Orientation="Vertical">
+        <VerticalStackLayout Padding="8,8,8,16"
+                             Spacing="0">
+
+            <!-- GENEL SIRALAMA -->
+            <Border BackgroundColor="#101E38"
+                    Stroke="#29446D"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 16,16,0,0"
+                    Padding="14,14">
+
+                <VerticalStackLayout Spacing="12">
+
+                    <Label Text="Genel sıralama"
+                           FontSize="19"
+                           FontAttributes="Bold"
+                           TextColor="#F2F5FF" />
+
+                    <!-- Filtreler: dar ekranda alt satıra geçer -->
+                    <FlexLayout Direction="Row"
+                                Wrap="Wrap"
+                                JustifyContent="Start"
+                                AlignItems="Center">
+
+                        <Button x:Name="AllFilterButton"
+                                Text="Tümü"
+                                Clicked="OnAllFilterClicked"
+                                FontSize="10"
+                                Padding="11,7"
+                                Margin="0,0,5,5"
+                                CornerRadius="20"
+                                BackgroundColor="#183867"
+                                TextColor="White" />
+
+                        <Button x:Name="ChampionsFilterButton"
+                                Text="● Şampiyonlar Ligi"
+                                Clicked="OnChampionsFilterClicked"
+                                FontSize="10"
+                                Padding="10,7"
+                                Margin="0,0,5,5"
+                                CornerRadius="20"
+                                BackgroundColor="#0D1A31"
+                                TextColor="#A9BEDF"
+                                BorderColor="#29446D"
+                                BorderWidth="1" />
+
+                        <Button x:Name="EuropeFilterButton"
+                                Text="● Avrupa"
+                                Clicked="OnEuropeFilterClicked"
+                                FontSize="10"
+                                Padding="10,7"
+                                Margin="0,0,5,5"
+                                CornerRadius="20"
+                                BackgroundColor="#0D1A31"
+                                TextColor="#A9BEDF"
+                                BorderColor="#29446D"
+                                BorderWidth="1" />
+
+                        <Button x:Name="RelegationFilterButton"
+                                Text="● Düşme hattı"
+                                Clicked="OnRelegationFilterClicked"
+                                FontSize="10"
+                                Padding="10,7"
+                                Margin="0,0,5,5"
+                                CornerRadius="20"
+                                BackgroundColor="#0D1A31"
+                                TextColor="#A9BEDF"
+                                BorderColor="#29446D"
+                                BorderWidth="1" />
+
+                    </FlexLayout>
+
+                    <!-- Arama ve yenileme -->
+                    <Grid ColumnDefinitions="*,Auto"
+                          ColumnSpacing="7">
+
+                        <Border BackgroundColor="#09152A"
+                                Stroke="#29446D"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 10"
+                                Padding="9,0">
+
+                            <Entry x:Name="SearchEntry"
+                                   Placeholder="⌕ Takım ara..."
+                                   PlaceholderColor="#7188AD"
+                                   TextColor="#F2F5FF"
+                                   FontSize="12"
+                                   ClearButtonVisibility="WhileEditing"
+                                   TextChanged="OnSearchTextChanged"
+                                   HeightRequest="42" />
+                        </Border>
+
+                        <Button Grid.Column="1"
+                                Text="↻"
+                                Clicked="OnRefreshClicked"
+                                BackgroundColor="#13294B"
+                                TextColor="#8DB8FF"
+                                BorderColor="#29446D"
+                                BorderWidth="1"
+                                FontSize="17"
+                                Padding="13,5"
+                                CornerRadius="10"
+                                VerticalOptions="Center" />
+
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- RENK AÇIKLAMASI -->
+            <Border BackgroundColor="#0D1A31"
+                    Stroke="#29446D"
+                    StrokeThickness="1"
+                    Padding="9,10">
+
+                <FlexLayout Direction="Row"
+                            Wrap="Wrap"
+                            JustifyContent="Start"
+                            AlignItems="Center">
+
+                    <Label Text="● Üst sıra (1–4)"
+                           TextColor="#438BFF"
+                           FontSize="9"
+                           Margin="0,0,10,3" />
+
+                    <Label Text="● Avrupa hattı (5–6)"
+                           TextColor="#20D5AA"
+                           FontSize="9"
+                           Margin="0,0,10,3" />
+
+                    <Label Text="● Düşme hattı (18–20)"
+                           TextColor="#FF4778"
+                           FontSize="9"
+                           Margin="0,0,0,3" />
+
+                </FlexLayout>
+            </Border>
+
+            <!-- MOBİL TABLO BAŞLIĞI -->
+            <Grid ColumnDefinitions="30,*,28,28,28,28,40"
+                  ColumnSpacing="0"
+                  Padding="7,12"
+                  BackgroundColor="#09152A">
+
+                <Label Text="#"
+                       TextColor="#91A9D2"
+                       FontAttributes="Bold"
+                       FontSize="10"
+                       VerticalTextAlignment="Center" />
+
+                <Label Grid.Column="1"
+                       Text="Takım"
+                       TextColor="#91A9D2"
+                       FontAttributes="Bold"
+                       FontSize="10"
+                       VerticalTextAlignment="Center" />
+
+                <Label Grid.Column="2"
+                       Text="O"
+                       Style="{StaticResource TableHeaderLabel}" />
+
+                <Label Grid.Column="3"
+                       Text="G"
+                       Style="{StaticResource TableHeaderLabel}" />
+
+                <Label Grid.Column="4"
+                       Text="B"
+                       Style="{StaticResource TableHeaderLabel}" />
+
+                <Label Grid.Column="5"
+                       Text="M"
+                       Style="{StaticResource TableHeaderLabel}" />
+
+                <Label Grid.Column="6"
+                       Text="P"
+                       Style="{StaticResource TableHeaderLabel}" />
+
+            </Grid>
+
+            <!-- TAKIM LİSTESİ -->
+            <CollectionView x:Name="StandingsView"
+                            SelectionMode="None"
+                            ItemsLayout="VerticalList">
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+
+                        <Grid ColumnDefinitions="4,26,*,28,28,28,28,40"
+                              ColumnSpacing="0"
+                              MinimumHeightRequest="62"
+                              BackgroundColor="#101E38">
+
+                            <!-- Sıralama rengi -->
+                            <BoxView Grid.Column="0"
+                                     Color="{Binding PositionColor}" />
+
+                            <!-- Sıra -->
+                            <Label Grid.Column="1"
+                                   Text="{Binding Position}"
+                                   FontSize="12"
+                                   FontAttributes="Bold"
+                                   TextColor="#EAF0FF"
+                                   HorizontalTextAlignment="Center"
+                                   VerticalTextAlignment="Center" />
+
+                            <!-- Takım adı ve gol istatistikleri -->
+                            <Grid Grid.Column="2"
+                                  ColumnDefinitions="25,*"
+                                  ColumnSpacing="4"
+                                  Padding="3,7">
+
+                                <Image Source="{Binding LogoImageUrl}"
+                                       WidthRequest="23"
+                                       HeightRequest="23"
+                                       Aspect="AspectFit"
+                                       VerticalOptions="Center" />
+
+                                <VerticalStackLayout Grid.Column="1"
+                                                     Spacing="4"
+                                                     VerticalOptions="Center">
+
+                                    <Label Text="{Binding TeamName}"
+                                           FontSize="12"
+                                           FontAttributes="Bold"
+                                           TextColor="#F2F5FF"
+                                           LineBreakMode="TailTruncation"
+                                           MaxLines="1" />
+
+                                    <Label FontSize="10"
+                                       TextColor="#EAF0FF"
+                                       LineBreakMode="NoWrap"
+                                       FontAttributes="Bold">
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="AG " TextColor="#AFC5E8" />
+                                                <Span Text="{Binding GoalsFor}" TextColor="#FFFFFF" />
+                                                <Span Text=" · YG " TextColor="#AFC5E8" />
+                                                <Span Text="{Binding GoalsAgainst}" TextColor="#FFFFFF" />
+                                                <Span Text=" · AV " TextColor="#AFC5E8" />
+                                                <Span Text="{Binding GoalDifferenceText}" TextColor="#FFFFFF" />
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
+
+                                </VerticalStackLayout>
+                            </Grid>
+
+                            <!-- Oynanan -->
+                            <Label Grid.Column="3"
+                                   Text="{Binding Played}"
+                                   Style="{StaticResource TableValueLabel}" />
+
+                            <!-- Galibiyet -->
+                            <Label Grid.Column="4"
+                                   Text="{Binding Won}"
+                                   Style="{StaticResource TableValueLabel}" />
+
+                            <!-- Beraberlik -->
+                            <Label Grid.Column="5"
+                                   Text="{Binding Drawn}"
+                                   Style="{StaticResource TableValueLabel}" />
+
+                            <!-- Mağlubiyet -->
+                            <Label Grid.Column="6"
+                                   Text="{Binding Lost}"
+                                   Style="{StaticResource TableValueLabel}" />
+
+                            <!-- Puan -->
+                            <Label Grid.Column="7"
+                                   Text="{Binding Points}"
+                                   FontSize="12"
+                                   FontAttributes="Bold"
+                                   TextColor="#FFFFFF"
+                                   HorizontalTextAlignment="Center"
+                                   VerticalTextAlignment="Center" />
+
+                            <!-- Satır ayırıcı -->
+                            <BoxView Grid.ColumnSpan="8"
+                                     HeightRequest="1"
+                                     Color="#243958"
+                                     VerticalOptions="End" />
+
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+
+                <CollectionView.EmptyView>
+                    <Label Text="Takım bulunamadı."
+                           TextColor="#91A9D2"
+                           FontSize="12"
+                           HorizontalTextAlignment="Center"
+                           Padding="12" />
+                </CollectionView.EmptyView>
+
+            </CollectionView>
+
+            <!-- DURUM MESAJI -->
+            <Label x:Name="MessageLabel"
+                   Text="Puan durumu yükleniyor..."
+                   FontSize="11"
+                   TextColor="#91A9D2"
+                   HorizontalTextAlignment="Center"
+                   Margin="8,14" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

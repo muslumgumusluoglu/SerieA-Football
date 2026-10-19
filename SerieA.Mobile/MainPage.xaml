@@ -1,0 +1,169 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="SerieA.Mobile.MainPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    BackgroundColor="#071226"
+    Shell.NavBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*"
+          Padding="18,18,18,8"
+          RowSpacing="14">
+
+        <!-- Başlık -->
+        <VerticalStackLayout Grid.Row="0" Spacing="4">
+            <Label Text="SERIE A"
+                   FontSize="12"
+                   FontAttributes="Bold"
+                   TextColor="#65A0FF" />
+            <Label Text="Fikstür ve Sonuçlar"
+                   FontSize="27"
+                   FontAttributes="Bold"
+                   TextColor="#F4F7FF" />
+            <Label Text="Haftayı seç, maçları görüntüle."
+                   FontSize="13"
+                   TextColor="#91A9D2" />
+        </VerticalStackLayout>
+
+        <!-- Hafta seçimi -->
+        <Border Grid.Row="1"
+                BackgroundColor="#112344"
+                Stroke="#284675"
+                StrokeThickness="1"
+                StrokeShape="RoundRectangle 14"
+                Padding="14,6">
+
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                <VerticalStackLayout Spacing="2"
+                                     VerticalOptions="Center">
+                    <Label Text="SEZON 2026/27"
+                           FontSize="10"
+                           TextColor="#91A9D2" />
+                    <Label Text="Maç haftası"
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           TextColor="#F4F7FF" />
+                </VerticalStackLayout>
+
+                <Picker x:Name="WeekPicker"
+                        Grid.Column="1"
+                        WidthRequest="115"
+                        TextColor="#F4F7FF"
+                        TitleColor="#91A9D2"
+                        BackgroundColor="#193867"
+                        SelectedIndexChanged="OnWeekChanged" />
+            </Grid>
+        </Border>
+
+        <!-- Bilgi / hata / yükleniyor mesajı -->
+        <Label x:Name="MessageLabel"
+               Grid.Row="2"
+               Text="Maçlar yükleniyor..."
+               FontSize="12"
+               TextColor="#91A9D2" />
+
+        <!-- Maçlar -->
+        <CollectionView x:Name="MatchesView"
+                        Grid.Row="3"
+                        SelectionMode="None">
+
+            <CollectionView.EmptyView>
+                <VerticalStackLayout Padding="20"
+                                     Spacing="8"
+                                     VerticalOptions="Center">
+                    <Label Text="Bu hafta için maç bulunamadı."
+                           TextColor="#F4F7FF"
+                           FontSize="16"
+                           HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border
+                        BackgroundColor="#0D1C35"
+                        Stroke="#223B62"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 16"
+                        Padding="12"
+                        Margin="0,0,0,10">
+
+                        <VerticalStackLayout Spacing="10">
+
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label Text="{Binding MatchDateText}"
+                                       FontSize="11"
+                                       TextColor="#91A9D2" />
+                                <Label Grid.Column="1"
+                                       Text="{Binding StatusText}"
+                                       FontSize="10"
+                                       TextColor="#65A0FF"
+                                       VerticalOptions="Center" />
+                            </Grid>
+
+                            <Grid ColumnDefinitions="*,Auto,*"
+                                  ColumnSpacing="8">
+
+                                <!-- Ev sahibi -->
+                                <VerticalStackLayout Spacing="6"
+                                                     HorizontalOptions="Center">
+                                    <Image Source="{Binding HomeLogoUrl}"
+                                           HeightRequest="38"
+                                           WidthRequest="38"
+                                           Aspect="AspectFit" />
+                                    <Label Text="{Binding HomeTeam.Name}"
+                                           FontSize="13"
+                                           FontAttributes="Bold"
+                                           TextColor="#F4F7FF"
+                                           HorizontalTextAlignment="Center"
+                                           LineBreakMode="TailTruncation"
+                                           MaxLines="2" />
+                                </VerticalStackLayout>
+
+                                <!-- Skor -->
+                                <Border Grid.Column="1"
+                                        BackgroundColor="#193867"
+                                        Stroke="#31578C"
+                                        StrokeThickness="1"
+                                        StrokeShape="RoundRectangle 10"
+                                        Padding="12,8"
+                                        VerticalOptions="Center">
+                                    <Label Text="{Binding ScoreText}"
+                                           FontSize="19"
+                                           FontAttributes="Bold"
+                                           TextColor="#FFFFFF"
+                                           HorizontalTextAlignment="Center"
+                                           VerticalOptions="Center" />
+                                </Border>
+
+                                <!-- Deplasman -->
+                                <VerticalStackLayout Grid.Column="2"
+                                                     Spacing="6"
+                                                     HorizontalOptions="Center">
+                                    <Image Source="{Binding AwayLogoUrl}"
+                                           HeightRequest="38"
+                                           WidthRequest="38"
+                                           Aspect="AspectFit" />
+                                    <Label Text="{Binding AwayTeam.Name}"
+                                           FontSize="13"
+                                           FontAttributes="Bold"
+                                           TextColor="#F4F7FF"
+                                           HorizontalTextAlignment="Center"
+                                           LineBreakMode="TailTruncation"
+                                           MaxLines="2" />
+                                </VerticalStackLayout>
+                            </Grid>
+
+                            <Label Text="{Binding Stadium}"
+                                   FontSize="10"
+                                   TextColor="#718BB5"
+                                   HorizontalTextAlignment="Center" />
+
+                        </VerticalStackLayout>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+    </Grid>
+</ContentPage>
